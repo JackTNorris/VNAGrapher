@@ -20,7 +20,7 @@ class BluetoothService(
     private val handler: Handler
 ) {
 
-    private inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
+    inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
 
         private val mmInStream: InputStream = mmSocket.inputStream
         private val mmOutStream: OutputStream = mmSocket.outputStream

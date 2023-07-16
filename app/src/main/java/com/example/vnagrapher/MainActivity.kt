@@ -1,11 +1,17 @@
 package com.example.vnagrapher
 
+import BluetoothService
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothSocket
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -17,10 +23,20 @@ import android.view.MenuItem
 import androidx.core.app.ActivityCompat
 import com.example.vnagrapher.databinding.ActivityMainBinding
 import android.util.Log
-class MainActivity : AppCompatActivity() {
+import androidx.core.content.ContextCompat
+import java.io.IOException
+import java.util.*
 
+var mUUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
+var TAG = "VNA_GRAPHER"
+class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var myBluetoothService: BluetoothService
+    private lateinit var mHandler: Handler
+
+    private lateinit var bluetoothManager: BluetoothManager
+    private lateinit var bluetoothAdapter: BluetoothAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +55,26 @@ class MainActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
         }
         Log.d("stuff", "Hello my friend")
-        val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
-        val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.getAdapter()
+        bluetoothManager = getSystemService(BluetoothManager::class.java)
+        bluetoothAdapter = bluetoothManager.getAdapter()
+        //--------------------------Kotlin--------------------------
+        if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            {
+                ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 2)
+
+                return
+            }
+        }
+        if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            {
+                ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.BLUETOOTH_SCAN), 2)
+                return
+            }
+        }
         if (bluetoothAdapter == null) {
             Log.d("stuff", "NO BLUETOOTH")
             // Device doesn't support Bluetooth
@@ -68,14 +102,72 @@ class MainActivity : AppCompatActivity() {
         }
         //bluetoothAdapter.getProfileConnectionState()
         if (bluetoothAdapter?.isEnabled == true) {
-
             Log.d("stuff", "we boolin")
         }
 
 
+        mHandler = Handler(this.mainLooper, Handler.Callback {
+            try {
+                /*
+                val response = it.obj as Pair<String, ByteArray>
+                val from = response.first
+                val msg = response.second.decodeToString()
+                */
+                return@Callback true
+            } catch (e: Exception) {
+                return@Callback false
+            }
+        })
+
+        myBluetoothService = BluetoothService(mHandler)
+        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+        pairedDevices?.forEach { device ->
+            val deviceName = device.name
+            Log.d(TAG, deviceName)
+            val deviceHardwareAddress = device.address // MAC address
+            if(deviceHardwareAddress == "98:D3:11:FC:2F:A6")
+            {
+                this.ConnectThread(device).start()
+            }
+
+        }
 
     }
-override fun onCreateOptionsMenu(menu: Menu): Boolean {
+
+    @SuppressLint("MissingPermission")
+    private inner class ConnectThread(device: BluetoothDevice) : Thread() {
+        private val mUUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
+
+        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+            device.createRfcommSocketToServiceRecord(mUUID)
+        }
+
+        public override fun run() {
+            // Cancel discovery because it otherwise slows down the connection.
+            bluetoothAdapter?.cancelDiscovery()
+
+            mmSocket?.let { socket ->
+                // Connect to the remote device through the socket. This call blocks
+                // until it succeeds or throws an exception.
+                socket.connect()
+
+                // The connection attempt succeeded. Perform work associated with
+                // the connection in a separate thread.
+                //myBluetoothService.ConnectedThread(socket).start()
+            }
+        }
+
+        // Closes the client socket and causes the thread to finish.
+        fun cancel() {
+            try {
+                mmSocket?.close()
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not close the client socket", e)
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
@@ -96,4 +188,5 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
     return navController.navigateUp(appBarConfiguration)
             || super.onSupportNavigateUp()
     }
+
 }
