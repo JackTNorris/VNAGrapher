@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.nfc.Tag
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -38,6 +39,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
 
+    private lateinit var connectedThread: BluetoothService.ConnectedThread
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,10 +53,6 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
         Log.d("stuff", "Hello my friend")
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.getAdapter()
@@ -108,13 +107,13 @@ class MainActivity : AppCompatActivity() {
 
         mHandler = Handler(this.mainLooper, Handler.Callback {
             try {
-                /*
                 val response = it.obj as Pair<String, ByteArray>
                 val from = response.first
                 val msg = response.second.decodeToString()
-                */
+                Log.d(TAG, msg)
                 return@Callback true
             } catch (e: Exception) {
+                Log.d(TAG, "ISSUES IN HANDLER")
                 return@Callback false
             }
         })
@@ -127,7 +126,7 @@ class MainActivity : AppCompatActivity() {
             val deviceHardwareAddress = device.address // MAC address
             if(deviceHardwareAddress == "98:D3:11:FC:2F:A6")
             {
-                this.ConnectThread(device).start()
+                this.ConnectThread(device, binding).start()
             }
 
         }
@@ -135,11 +134,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread(device: BluetoothDevice) : Thread() {
-        private val mUUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
+    private inner class ConnectThread(device: BluetoothDevice, binding: ActivityMainBinding) : Thread() {
+        private val mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
-            device.createRfcommSocketToServiceRecord(mUUID)
+            device.createInsecureRfcommSocketToServiceRecord(mUUID)
         }
 
         public override fun run() {
@@ -153,7 +152,27 @@ class MainActivity : AppCompatActivity() {
 
                 // The connection attempt succeeded. Perform work associated with
                 // the connection in a separate thread.
-                //myBluetoothService.ConnectedThread(socket).start()
+                Log.d(TAG, "CONNECTED BITCH")
+                connectedThread = myBluetoothService.ConnectedThread(socket)
+                connectedThread.start()
+                var utilThread = myBluetoothService.ConnectedThread(socket)
+
+                binding.pause.setOnClickListener { view ->
+                    var message = "pause\r"
+                    Log.d(TAG, "WHAT UP FOOL")
+                    utilThread.write(message.toByteArray())
+                }
+                binding.resume.setOnClickListener { view ->
+                    var message = "resume\r"
+                    Log.d(TAG, "WHAT UP FOOL")
+                    utilThread.write(message.toByteArray())
+                }
+                binding.data.setOnClickListener { view ->
+                    var message = "data\r"
+                    Log.d(TAG, "WHAT UP FOOL")
+                    utilThread.write(message.toByteArray())
+                }
+
             }
         }
 
