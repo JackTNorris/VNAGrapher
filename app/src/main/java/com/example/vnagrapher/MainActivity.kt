@@ -24,9 +24,16 @@ import android.view.MenuItem
 import androidx.core.app.ActivityCompat
 import com.example.vnagrapher.databinding.ActivityMainBinding
 import android.util.Log
+import androidx.annotation.WorkerThread
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.delay
 import java.io.IOException
 import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import androidx.lifecycle.*
 
 var mUUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
 var TAG = "VNA_GRAPHER"
@@ -165,8 +172,16 @@ class MainActivity : AppCompatActivity() {
                     utilThread.write(message.toByteArray())
                 }
                 binding.data.setOnClickListener { view ->
-                    var message = "data\r"
+                    var dataNum = binding.dataNum.text.toString()
+                    var message = "data $dataNum\r"
                     utilThread.write(message.toByteArray())
+                }
+                binding.setSweep.setOnClickListener {
+                    var sweepStart = binding.sweepStart.text.toString()
+                    var sweepEnd = binding.sweepEnd.text.toString()
+                    Log.d(TAG, sweepStart)
+                    Log.d(TAG, sweepEnd)
+                    utilThread.write(("sweep $sweepStart $sweepEnd\r").toByteArray())
                 }
 
             }

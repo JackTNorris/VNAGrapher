@@ -26,7 +26,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-  <include layout="@layout/content_main"/>
+        <include
+            android:id="@+id/include2"
+            layout="@layout/content_main" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -46,14 +48,6 @@
                 android:text="Pause" />
 
             <Button
-                android:id="@+id/data"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:text="Data" />
-
-            <Button
                 android:id="@+id/resume"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -63,11 +57,14 @@
         </LinearLayout>
 
         <ScrollView
-            android:layout_width="354dp"
-            android:layout_height="551dp"
-            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            android:id="@+id/scrollView2"
+            android:layout_width="346dp"
+            android:layout_height="371dp"
+            android:layout_marginTop="76dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintHorizontal_bias="0.492"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -82,6 +79,75 @@
                     android:textAlignment="center" />
             </LinearLayout>
         </ScrollView>
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="366dp"
+            android:layout_height="91dp"
+            android:layout_marginTop="1dp"
+            android:gravity="center|center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.488"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/scrollView2"
+            app:layout_constraintVertical_bias="0.205">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/sweepStart"
+                android:layout_width="143dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:hint="Start"
+                android:minHeight="48dp" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/sweepEnd"
+                android:layout_width="143dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:hint="End"
+                android:minHeight="48dp" />
+
+            <Button
+                android:id="@+id/setSweep"
+                android:layout_width="149dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sweep" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="266dp"
+            android:layout_height="82dp"
+            android:layout_marginBottom="3dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/dataNum"
+                android:layout_width="149dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:hint="Data Num"
+                android:minHeight="48dp" />
+
+            <Button
+                android:id="@+id/data"
+                android:layout_width="149dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Data" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
