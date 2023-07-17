@@ -1,6 +1,7 @@
 import android.bluetooth.BluetoothSocket
 import android.os.Bundle
 import android.os.Handler
+import android.text.TextUtils
 import android.util.Log
 import java.io.IOException
 import java.io.InputStream
@@ -14,6 +15,7 @@ const val MESSAGE_READ: Int = 0
 const val MESSAGE_WRITE: Int = 1
 const val MESSAGE_TOAST: Int = 2
 // ... (Add other message types here as needed.)
+private var new_command_crlf: String = "ch>"
 
 class BluetoothService(
     // handler that gets info from Bluetooth service
@@ -28,24 +30,33 @@ class BluetoothService(
 
         override fun run() {
             var numBytes: Int // bytes returned from read()
-
+            var msgString = ""
             // Keep listening to the InputStream until an exception occurs.
             while (true) {
                 // Read from the InputStream.
                 numBytes = try {
+                    mmBuffer.fill(0)
                     mmInStream.read(mmBuffer)
                 } catch (e: IOException) {
                     Log.d(TAG, "Input stream was disconnected", e)
                     break
                 }
+                var recv_string = String(mmBuffer, 0, numBytes)
+                msgString += recv_string
+                if (msgString.indexOf(new_command_crlf) > 0)
+                {
+                    val byte_msg = msgString.toByteArray()
+                    // Send the obtained bytes to the UI activity.
+                    val readMsg = handler.obtainMessage(
+                        MESSAGE_READ, byte_msg.size, -1,
+                        byte_msg)
+                    readMsg.sendToTarget()
+                    msgString = ""
+                }
 
-                // Send the obtained bytes to the UI activity.
-                val readMsg = handler.obtainMessage(
-                    MESSAGE_READ, numBytes, -1,
-                    mmBuffer)
-                readMsg.sendToTarget()
             }
         }
+
 
         // Call this from the main activity to send data to the remote device.
         fun write(bytes: ByteArray) {

@@ -107,10 +107,9 @@ class MainActivity : AppCompatActivity() {
 
         mHandler = Handler(this.mainLooper, Handler.Callback {
             try {
-                val response = it.obj as Pair<String, ByteArray>
-                val from = response.first
-                val msg = response.second.decodeToString()
-                Log.d(TAG, msg)
+                var numBytes = it.arg1
+                Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
+                binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
                 return@Callback true
             } catch (e: Exception) {
                 Log.d(TAG, "ISSUES IN HANDLER")
@@ -159,17 +158,14 @@ class MainActivity : AppCompatActivity() {
 
                 binding.pause.setOnClickListener { view ->
                     var message = "pause\r"
-                    Log.d(TAG, "WHAT UP FOOL")
                     utilThread.write(message.toByteArray())
                 }
                 binding.resume.setOnClickListener { view ->
                     var message = "resume\r"
-                    Log.d(TAG, "WHAT UP FOOL")
                     utilThread.write(message.toByteArray())
                 }
                 binding.data.setOnClickListener { view ->
                     var message = "data\r"
-                    Log.d(TAG, "WHAT UP FOOL")
                     utilThread.write(message.toByteArray())
                 }
 
