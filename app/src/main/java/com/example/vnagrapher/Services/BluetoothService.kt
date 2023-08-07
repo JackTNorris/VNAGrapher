@@ -1,11 +1,23 @@
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.text.TextUtils
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.vnagrapher.databinding.ActivityMainBinding
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.*
 
 private const val TAG = "MY_APP_DEBUG_TAG"
 
@@ -19,8 +31,62 @@ private var new_command_crlf: String = "ch>"
 
 class BluetoothService(
     // handler that gets info from Bluetooth service
-    private val handler: Handler
+    private val handler: Handler,
+    private val bluetoothManager: BluetoothManager,
 ) {
+    private var bluetoothAdapter: BluetoothAdapter = bluetoothManager.getAdapter()
+    lateinit var connectedThread: BluetoothService.ConnectedThread
+
+    fun configurePermission(activity: Activity) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            {
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 2)
+                return
+            }
+        }
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            {
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.BLUETOOTH_SCAN), 2)
+                return
+            }
+        }
+
+        if (bluetoothAdapter == null) {
+            Log.d("stuff", "NO BLUETOOTH")
+            // Device doesn't support Bluetooth
+        }
+
+        if (bluetoothAdapter?.isEnabled == false) {
+            Log.d("stuff", "bluetooth not enabled")
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            val REQUEST_ENABLE_BT = 1
+            Log.d("stuff", "bluetooth not here")
+            if (ActivityCompat.checkSelfPermission(
+                    activity,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                return
+            }
+        }
+    }
+
+    fun connectDevice(device: BluetoothDevice, callback: () -> Unit, binding: ActivityMainBinding) {
+        this.ConnectThread(device, callback, binding).run()
+    }
+
+    fun getPairedDevices(): Set<BluetoothDevice>? {
+        @SuppressLint("MissingPermission")
+        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+        return pairedDevices
+    }
 
     inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
 
@@ -64,7 +130,6 @@ class BluetoothService(
                 mmOutStream.write(bytes)
             } catch (e: IOException) {
                 Log.e(TAG, "Error occurred when sending data", e)
-
                 // Send a failure message back to the activity.
                 val writeErrorMsg = handler.obtainMessage(MESSAGE_TOAST)
                 val bundle = Bundle().apply {
@@ -87,6 +152,68 @@ class BluetoothService(
                 mmSocket.close()
             } catch (e: IOException) {
                 Log.e(TAG, "Could not close the connect socket", e)
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private inner class ConnectThread(device: BluetoothDevice, callback: () -> Unit, binding: ActivityMainBinding) : Thread() {
+        private val mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+            device.createInsecureRfcommSocketToServiceRecord(mUUID)
+        }
+        private val binding = binding
+        override fun run() {
+            // Cancel discovery because it   otherwise slows down the connection.
+            bluetoothAdapter?.cancelDiscovery()
+
+            try {
+                mmSocket?.let { socket ->
+                    // Connect to the remote device through the socket. This call blocks
+                    // until it succeeds or throws an exception.
+                    socket.connect()
+                    // The connection attempt succeeded. Perform work associated with
+                    // the connection in a separate thread.
+                    Log.d(com.example.vnagrapher.TAG, "CONNECTED Dude")
+                    connectedThread = ConnectedThread(socket)
+
+                    binding.pause.setOnClickListener { view ->
+                        var message = "pause\r"
+                        connectedThread.write(message.toByteArray())
+                    }
+                    binding.resume.setOnClickListener { view ->
+                        var message = "resume\r"
+                        connectedThread.write(message.toByteArray())
+                    }
+                    binding.data.setOnClickListener { view ->
+                        var dataNum = binding.dataNum.text.toString()
+                        var message = "data $dataNum\r"
+                        connectedThread.write(message.toByteArray())
+                    }
+                    binding.setSweep.setOnClickListener {
+                        var sweepStart = binding.sweepStart.text.toString()
+                        var sweepEnd = binding.sweepEnd.text.toString()
+                        Log.d(com.example.vnagrapher.TAG, sweepStart)
+                        Log.d(com.example.vnagrapher.TAG, sweepEnd)
+                        connectedThread.write(("sweep $sweepStart $sweepEnd\r").toByteArray())
+                    }
+
+                    connectedThread.start()
+                }
+            }
+            catch(e: IOException)
+            {
+                Log.d(com.example.vnagrapher.TAG, "Error Connecting")
+            }
+
+        }
+
+        // Closes the client socket and causes the thread to finish.
+        fun cancel() {
+            try {
+                mmSocket?.close()
+            } catch (e: IOException) {
+                Log.e(com.example.vnagrapher.TAG, "Could not close the client socket", e)
             }
         }
     }
