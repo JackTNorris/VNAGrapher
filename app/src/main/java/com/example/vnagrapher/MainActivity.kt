@@ -15,6 +15,9 @@ import android.view.Menu
 import android.view.MenuItem
 import com.example.vnagrapher.databinding.ActivityMainBinding
 import android.util.Log
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.navigation.NavigationView
 import java.util.*
 
 
@@ -33,15 +36,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-     binding = ActivityMainBinding.inflate(layoutInflater)
-     setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
         Log.d("stuff", "Hello my friend")
         bluetoothManager = getSystemService(BluetoothManager::class.java)
 
@@ -49,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 var numBytes = it.arg1
                 Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
-                binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
+                // binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
                 return@Callback true
             } catch (e: Exception) {
                 Log.d(TAG, "ISSUES IN HANDLER")
@@ -57,17 +51,27 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        myBluetoothService = BluetoothService(mHandler, bluetoothManager)
+        myBluetoothService = BluetoothService.getInstance(bluetoothManager)
+        // myBluetoothService.addHandler(mHandler)
         myBluetoothService.configurePermission(this)
-        myBluetoothService.getPairedDevices()?.forEach { device ->
-            val deviceName = device.name
-            Log.d(TAG, deviceName)
-            val deviceHardwareAddress = device.address // MAC address
-            if(deviceHardwareAddress == "98:D3:11:FC:2F:A6")
-            {
-                myBluetoothService.connectDevice(device, {}, binding)
-            }
-        }
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.appBarMain.toolbar)
+
+
+        val drawerLayout: DrawerLayout = binding.drawerLayout
+        val navView: NavigationView = binding.navView
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_home
+            ), drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
     }
 
 

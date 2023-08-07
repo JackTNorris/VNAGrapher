@@ -14,6 +14,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.vnagrapher.databinding.ActivityMainBinding
+import com.example.vnagrapher.databinding.FragmentHomeBinding
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -31,11 +32,26 @@ private var new_command_crlf: String = "ch>"
 
 class BluetoothService(
     // handler that gets info from Bluetooth service
-    private val handler: Handler,
     private val bluetoothManager: BluetoothManager,
 ) {
+
+    companion object {
+        @Volatile
+        private var instance: BluetoothService? = null
+
+        fun getInstance(bluetoothManager: BluetoothManager, ) =
+            instance ?: synchronized(this) {
+                instance ?: BluetoothService(bluetoothManager).also { instance = it }
+            }
+    }
+
     private var bluetoothAdapter: BluetoothAdapter = bluetoothManager.getAdapter()
     lateinit var connectedThread: BluetoothService.ConnectedThread
+    var handlers: Array<Handler> = arrayOf<Handler>()
+
+    fun addHandler(handler: Handler) {
+        this.handlers += handler
+    }
 
     fun configurePermission(activity: Activity) {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED)
@@ -78,7 +94,7 @@ class BluetoothService(
         }
     }
 
-    fun connectDevice(device: BluetoothDevice, callback: () -> Unit, binding: ActivityMainBinding) {
+    fun connectDevice(device: BluetoothDevice, callback: () -> Unit, binding: FragmentHomeBinding) {
         this.ConnectThread(device, callback, binding).run()
     }
 
@@ -113,10 +129,13 @@ class BluetoothService(
                 {
                     val byte_msg = msgString.toByteArray()
                     // Send the obtained bytes to the UI activity.
-                    val readMsg = handler.obtainMessage(
-                        MESSAGE_READ, byte_msg.size, -1,
-                        byte_msg)
-                    readMsg.sendToTarget()
+                    handlers.forEach {
+                        val readMsg = it.obtainMessage(
+                            MESSAGE_READ, byte_msg.size, -1,
+                            byte_msg)
+                        readMsg.sendToTarget()
+                    }
+
                     msgString = ""
                 }
 
@@ -131,19 +150,25 @@ class BluetoothService(
             } catch (e: IOException) {
                 Log.e(TAG, "Error occurred when sending data", e)
                 // Send a failure message back to the activity.
-                val writeErrorMsg = handler.obtainMessage(MESSAGE_TOAST)
-                val bundle = Bundle().apply {
-                    putString("toast", "Couldn't send data to the other device")
+                handlers.forEach {
+                    val writeErrorMsg = it.obtainMessage(MESSAGE_TOAST)
+                    val bundle = Bundle().apply {
+                        putString("toast", "Couldn't send data to the other device")
+                    }
+                    writeErrorMsg.data = bundle
+                    it.sendMessage(writeErrorMsg)
                 }
-                writeErrorMsg.data = bundle
-                handler.sendMessage(writeErrorMsg)
+
                 return
             }
 
             // Share the sent message with the UI activity.
-            val writtenMsg = handler.obtainMessage(
-                MESSAGE_WRITE, -1, -1, mmBuffer)
-            writtenMsg.sendToTarget()
+            handlers.forEach {
+                val writtenMsg = it.obtainMessage(
+                    MESSAGE_WRITE, -1, -1, mmBuffer)
+                writtenMsg.sendToTarget()
+            }
+
         }
 
         // Call this method from the main activity to shut down the connection.
@@ -157,7 +182,7 @@ class BluetoothService(
     }
 
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread(device: BluetoothDevice, callback: () -> Unit, binding: ActivityMainBinding) : Thread() {
+    private inner class ConnectThread(device: BluetoothDevice, callback: () -> Unit, binding: FragmentHomeBinding) : Thread() {
         private val mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createInsecureRfcommSocketToServiceRecord(mUUID)
@@ -177,20 +202,21 @@ class BluetoothService(
                     Log.d(com.example.vnagrapher.TAG, "CONNECTED Dude")
                     connectedThread = ConnectedThread(socket)
 
-                    binding.pause.setOnClickListener { view ->
+                    var frag_binding = binding as FragmentHomeBinding
+                    frag_binding.pause.setOnClickListener { view ->
                         var message = "pause\r"
                         connectedThread.write(message.toByteArray())
                     }
-                    binding.resume.setOnClickListener { view ->
+                    frag_binding.resume.setOnClickListener { view ->
                         var message = "resume\r"
                         connectedThread.write(message.toByteArray())
                     }
-                    binding.data.setOnClickListener { view ->
+                    frag_binding.data.setOnClickListener { view ->
                         var dataNum = binding.dataNum.text.toString()
                         var message = "data $dataNum\r"
                         connectedThread.write(message.toByteArray())
                     }
-                    binding.setSweep.setOnClickListener {
+                    frag_binding.setSweep.setOnClickListener {
                         var sweepStart = binding.sweepStart.text.toString()
                         var sweepEnd = binding.sweepEnd.text.toString()
                         Log.d(com.example.vnagrapher.TAG, sweepStart)
