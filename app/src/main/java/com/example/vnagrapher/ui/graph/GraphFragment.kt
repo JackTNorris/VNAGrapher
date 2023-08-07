@@ -1,4 +1,4 @@
-package com.example.vnagrapher.ui.home
+package com.example.vnagrapher.ui.graph
 
 import BluetoothService
 import android.annotation.SuppressLint
@@ -9,17 +9,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.vnagrapher.R
 import com.example.vnagrapher.TAG
-import com.example.vnagrapher.databinding.FragmentHomeBinding
+import com.example.vnagrapher.databinding.FragmentGraphBinding
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 
-class HomeFragment : Fragment() {
+class GraphFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentGraphBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -31,15 +33,16 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this)[HomeViewModel::class.java]
+        val graphViewModel =
+            ViewModelProvider(this)[GraphViewModel::class.java]
 
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentGraphBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.receivedText
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+
+        //val textView: TextView = binding.receivedText
+        graphViewModel.text.observe(viewLifecycleOwner) {
+
         }
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
@@ -50,7 +53,7 @@ class HomeFragment : Fragment() {
                 var recievedString = String((it.obj as ByteArray), 0, numBytes)
                 val rcvArray = recievedString.split("\n")
                 Log.d(TAG, rcvArray.size.toString())
-                binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
+                // binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
                 return@Callback true
             } catch (e: Exception) {
                 Log.d(TAG, "ISSUES IN HANDLER")
@@ -60,15 +63,48 @@ class HomeFragment : Fragment() {
 
         btService = BluetoothService.getInstance(bluetoothManager)
         btService.addHandler(handler)
-        btService.getPairedDevices()?.forEach { device ->
-            val deviceName = device.name
-            Log.d(TAG, deviceName)
-            val deviceHardwareAddress = device.address // MAC address
-            if(deviceHardwareAddress == "98:D3:11:FC:2F:A6")
-            {
-                btService.connectDevice(device, {}, _binding!!)
-            }
+        val entries = ArrayList<Entry>()
+
+    //Part2
+        /*
+        entries.add(Entry(1f, 10f))
+        entries.add(Entry(2f, 2f))
+        entries.add(Entry(3f, 7f))
+        entries.add(Entry(4f, 20f))
+        entries.add(Entry(5f, 16f))
+        */
+        for (i in 0..20) {
+            entries.add(Entry(i.toFloat(), i.toFloat()))
         }
+
+        val vl = LineDataSet(entries, "My Type")
+
+//Part4
+        vl.setDrawValues(false)
+        //vl.setDrawFilled(true)
+        vl.lineWidth = 3f
+        vl.fillColor =  R.color.gray
+        vl.fillAlpha = R.color.red
+
+        val lineChart = binding.data0chart
+//Part5
+        lineChart.xAxis.labelRotationAngle = 0f
+
+//Part6
+        lineChart.data = LineData(vl)
+
+//Part7
+        lineChart.axisRight.isEnabled = false
+        lineChart.xAxis.axisMaximum = 20f
+
+//Part8
+        lineChart.setTouchEnabled(true)
+        lineChart.setPinchZoom(true)
+        lineChart.onTouchListener
+//Part9
+        lineChart.description.text = "Days"
+        lineChart.setNoDataText("No forex yet!")
+
         return root
     }
 
