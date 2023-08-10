@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.vnagrapher.TAG
 import com.example.vnagrapher.databinding.FragmentHomeBinding
+import com.example.vnagrapher.services.VNAService
 
 class HomeFragment : Fragment() {
 
@@ -25,6 +26,8 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var btService: BluetoothService
+    private lateinit var vnaService: VNAService
+
     @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +46,8 @@ class HomeFragment : Fragment() {
         }
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
+        btService = BluetoothService.getInstance(bluetoothManager)
+        vnaService = VNAService.getInstance()
         val handler = Handler(activity.mainLooper, Handler.Callback {
             try {
                 var numBytes = it.arg1
@@ -50,6 +55,7 @@ class HomeFragment : Fragment() {
                 var recievedString = String((it.obj as ByteArray), 0, numBytes)
                 val rcvArray = recievedString.split("\n")
                 Log.d(TAG, rcvArray.size.toString())
+                vnaService.handleMessage(String((it.obj as ByteArray), 0, numBytes))
                 binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
                 return@Callback true
             } catch (e: Exception) {
@@ -58,7 +64,6 @@ class HomeFragment : Fragment() {
             }
         })
 
-        btService = BluetoothService.getInstance(bluetoothManager)
         btService.addHandler(handler)
         btService.getPairedDevices()?.forEach { device ->
             val deviceName = device.name

@@ -39,9 +39,10 @@ class BluetoothService(
         @Volatile
         private var instance: BluetoothService? = null
 
-        fun getInstance(bluetoothManager: BluetoothManager, ) =
+        //TODO: fix this to be a singleton
+        fun getInstance(bluetoothManager: BluetoothManager? ) =
             instance ?: synchronized(this) {
-                instance ?: BluetoothService(bluetoothManager).also { instance = it }
+                instance ?: BluetoothService(bluetoothManager as BluetoothManager).also { instance = it }
             }
     }
 
@@ -51,6 +52,10 @@ class BluetoothService(
 
     fun addHandler(handler: Handler) {
         this.handlers += handler
+    }
+
+    fun writeMessage(message: String) {
+        connectedThread.write(message.toByteArray())
     }
 
     fun configurePermission(activity: Activity) {

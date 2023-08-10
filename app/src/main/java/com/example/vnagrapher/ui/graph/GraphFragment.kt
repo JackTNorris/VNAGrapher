@@ -15,9 +15,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.vnagrapher.R
 import com.example.vnagrapher.TAG
 import com.example.vnagrapher.databinding.FragmentGraphBinding
+import com.example.vnagrapher.services.VNAService
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import kotlin.random.Random
 
 class GraphFragment : Fragment() {
 
@@ -27,6 +29,9 @@ class GraphFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var btService: BluetoothService
+
+    private val vnaService: VNAService = VNAService.getInstance()
+
     @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,40 +51,16 @@ class GraphFragment : Fragment() {
         }
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
-        val handler = Handler(activity.mainLooper, Handler.Callback {
-            try {
-                var numBytes = it.arg1
-                Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
-                var recievedString = String((it.obj as ByteArray), 0, numBytes)
-                val rcvArray = recievedString.split("\n")
-                Log.d(TAG, rcvArray.size.toString())
-                // binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
-                return@Callback true
-            } catch (e: Exception) {
-                Log.d(TAG, "ISSUES IN HANDLER")
-                return@Callback false
-            }
-        })
-
         btService = BluetoothService.getInstance(bluetoothManager)
-        btService.addHandler(handler)
         val entries = ArrayList<Entry>()
 
-    //Part2
-        /*
-        entries.add(Entry(1f, 10f))
-        entries.add(Entry(2f, 2f))
-        entries.add(Entry(3f, 7f))
-        entries.add(Entry(4f, 20f))
-        entries.add(Entry(5f, 16f))
-        */
         for (i in 0..20) {
             entries.add(Entry(i.toFloat(), i.toFloat()))
         }
 
         val vl = LineDataSet(entries, "My Type")
 
-//Part4
+    //Part4
         vl.setDrawValues(false)
         //vl.setDrawFilled(true)
         vl.lineWidth = 3f
@@ -87,24 +68,50 @@ class GraphFragment : Fragment() {
         vl.fillAlpha = R.color.red
 
         val lineChart = binding.data0chart
-//Part5
+    //Part5
         lineChart.xAxis.labelRotationAngle = 0f
 
-//Part6
+    //Part6
         lineChart.data = LineData(vl)
 
-//Part7
+    //Part7
         lineChart.axisRight.isEnabled = false
         lineChart.xAxis.axisMaximum = 20f
 
-//Part8
+        //Part8
         lineChart.setTouchEnabled(true)
         lineChart.setPinchZoom(true)
         lineChart.onTouchListener
-//Part9
+        //Part9
         lineChart.description.text = "Days"
         lineChart.setNoDataText("No forex yet!")
 
+        binding.data.setOnClickListener { view ->
+            var dataNum = binding.dataNum.text.toString()
+            var message = "data $dataNum\r"
+            btService.writeMessage(message)
+        }
+        vnaService.realData.observe(viewLifecycleOwner) {
+            val entries = ArrayList<Entry>()
+            for (i in 0..100) {
+                //entries.add(Entry(i.toFloat(),it[i].toFloat()))
+                //generate random number
+                val x = Random.nextInt(0, 100)
+                entries.add(Entry(i.toFloat(), x.toFloat()))
+            }
+            val vl = LineDataSet(entries, "My Type")
+
+            //Part4
+            vl.setDrawValues(false)
+            //vl.setDrawFilled(true)
+            vl.lineWidth = 3f
+            vl.fillColor =  R.color.gray
+            vl.fillAlpha = R.color.red
+            lineChart.data = LineData(vl)
+            lineChart.notifyDataSetChanged()
+            lineChart.invalidate()
+            Log.d(TAG, "Updated Data")
+        }
         return root
     }
 
