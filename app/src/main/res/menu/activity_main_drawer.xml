@@ -12,5 +12,9 @@
             android:id="@+id/nav_graph"
             android:icon="@drawable/ic_menu_graph"
             android:title="@string/menu_graph" />
+        <item
+            android:id="@+id/nav_realtime_graph"
+            android:icon="@drawable/ic_menu_realtime"
+            android:title="@string/menu_realtime_graph" />
     </group>
 </menu>

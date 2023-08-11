@@ -15,5 +15,9 @@
         android:name="com.example.vnagrapher.ui.graph.GraphFragment"
         android:label="@string/menu_graph"
         tools:layout="@layout/fragment_graph" />
-
+    <fragment
+        android:id="@+id/nav_realtime_graph"
+        android:name="com.example.vnagrapher.ui.realtime_graph.RealtimeGraphFragment"
+        android:label="@string/menu_realtime_graph"
+        tools:layout="@layout/fragment_realtime_graph" />
 </navigation>

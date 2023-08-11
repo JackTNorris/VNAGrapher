@@ -12,6 +12,8 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_graph">Graph</string>
+    <string name="menu_realtime_graph">Real-time Graph</string>
+
     <string name="nav_header_title">VNA Grapher App</string>
 
 </resources>

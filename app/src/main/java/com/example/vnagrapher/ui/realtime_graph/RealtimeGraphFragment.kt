@@ -1,4 +1,4 @@
-package com.example.vnagrapher.ui.graph
+package com.example.vnagrapher.ui.realtime_graph
 
 import BluetoothService
 import android.annotation.SuppressLint
@@ -14,15 +14,15 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.vnagrapher.TAG
 import com.example.vnagrapher.databinding.FragmentGraphBinding
+import com.example.vnagrapher.databinding.FragmentRealtimeGraphBinding
 import com.example.vnagrapher.services.VNAService
-import com.example.vnagrapher.ui.realtime_graph.RealtimeGraphViewModel
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 
-class GraphFragment : Fragment() {
+class RealtimeGraphFragment : Fragment() {
 
-    private var _binding: FragmentGraphBinding? = null
+    private var _binding: FragmentRealtimeGraphBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -38,9 +38,9 @@ class GraphFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val graphViewModel =
-            ViewModelProvider(this)[GraphViewModel::class.java]
+            ViewModelProvider(this)[RealtimeGraphViewModel::class.java]
 
-        _binding = FragmentGraphBinding.inflate(inflater, container, false)
+        _binding = FragmentRealtimeGraphBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
 
@@ -54,19 +54,6 @@ class GraphFragment : Fragment() {
 
         val lineChart = binding.data0chart
 
-        binding.data.setOnClickListener { view ->
-            var dataNum = binding.dataNum.text.toString()
-            var message = "data $dataNum\r"
-            btService.writeMessage(message)
-        }
-
-        binding.setSweep.setOnClickListener {
-            var sweepStart = binding.sweepStart.text.toString()
-            var sweepEnd = binding.sweepEnd.text.toString()
-            Log.d(com.example.vnagrapher.TAG, sweepStart)
-            Log.d(com.example.vnagrapher.TAG, sweepEnd)
-            btService.writeMessage(("sweep $sweepStart $sweepEnd\r"))
-        }
 
         vnaService.data.observe(viewLifecycleOwner) {
             val real_entries = ArrayList<Entry>()
