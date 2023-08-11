@@ -3,6 +3,7 @@ package com.example.vnagrapher.ui.graph
 import BluetoothService
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -19,6 +20,7 @@ import com.example.vnagrapher.services.VNAService
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 class GraphFragment : Fragment() {
@@ -52,66 +54,56 @@ class GraphFragment : Fragment() {
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
         btService = BluetoothService.getInstance(bluetoothManager)
-        val entries = ArrayList<Entry>()
-
-        for (i in 0..20) {
-            entries.add(Entry(i.toFloat(), i.toFloat()))
-        }
-
-        val vl = LineDataSet(entries, "My Type")
-
-    //Part4
-        vl.setDrawValues(false)
-        //vl.setDrawFilled(true)
-        vl.lineWidth = 3f
-        vl.fillColor =  R.color.gray
-        vl.fillAlpha = R.color.red
 
         val lineChart = binding.data0chart
-    //Part5
-        lineChart.xAxis.labelRotationAngle = 0f
-
-    //Part6
-        lineChart.data = LineData(vl)
-
-    //Part7
-        lineChart.axisRight.isEnabled = false
-        lineChart.xAxis.axisMaximum = 20f
-
-        //Part8
-        lineChart.setTouchEnabled(true)
-        lineChart.setPinchZoom(true)
-        lineChart.onTouchListener
-        //Part9
-        lineChart.description.text = "Days"
-        lineChart.setNoDataText("No forex yet!")
 
         binding.data.setOnClickListener { view ->
             var dataNum = binding.dataNum.text.toString()
             var message = "data $dataNum\r"
             btService.writeMessage(message)
         }
-        vnaService.realData.observe(viewLifecycleOwner) {
-            val entries = ArrayList<Entry>()
-            for (i in 0..100) {
-                //entries.add(Entry(i.toFloat(),it[i].toFloat()))
-                //generate random number
-                val x = Random.nextInt(0, 100)
-                entries.add(Entry(i.toFloat(), x.toFloat()))
-            }
-            val vl = LineDataSet(entries, "My Type")
 
+        binding.setSweep.setOnClickListener {
+            var sweepStart = binding.sweepStart.text.toString()
+            var sweepEnd = binding.sweepEnd.text.toString()
+            Log.d(com.example.vnagrapher.TAG, sweepStart)
+            Log.d(com.example.vnagrapher.TAG, sweepEnd)
+            btService.writeMessage(("sweep $sweepStart $sweepEnd\r"))
+        }
+
+        vnaService.data.observe(viewLifecycleOwner) {
+            val real_entries = ArrayList<Entry>()
+            val imag_entries = ArrayList<Entry>()
+            for (i in 0..100) {
+                val xVal = (vnaService.sweepStart + i * vnaService.step).toInt().toFloat()
+                real_entries.add(Entry(xVal,it[i].first.toFloat()))
+                imag_entries.add(Entry(xVal, it[i].second.toFloat()))
+            }
+            val real = LineDataSet(real_entries, "Real")
+
+            val imag = LineDataSet(imag_entries, "Imaginary")
             //Part4
-            vl.setDrawValues(false)
+            real.setDrawValues(false)
+            imag.setDrawValues(false)
+            real.setColor(Color.rgb(255, 0, 0))
+            imag.setColor(Color.rgb(0, 255, 0))
             //vl.setDrawFilled(true)
-            vl.lineWidth = 3f
-            vl.fillColor =  R.color.gray
-            vl.fillAlpha = R.color.red
-            lineChart.data = LineData(vl)
+            real.lineWidth = 3f
+            imag.lineWidth = 3f
+
+            lineChart.axisRight.isEnabled = false
+
+            //Part8
+            lineChart.setTouchEnabled(true)
+            lineChart.setPinchZoom(true)
+            lineChart.onTouchListener
+
+            lineChart.data = LineData(real, imag)
             lineChart.notifyDataSetChanged()
             lineChart.invalidate()
             Log.d(TAG, "Updated Data")
         }
+
         return root
     }
 

@@ -17,6 +17,7 @@ import com.example.vnagrapher.databinding.ActivityMainBinding
 import android.util.Log
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.ui.setupWithNavController
+import com.example.vnagrapher.services.VNAService
 import com.google.android.material.navigation.NavigationView
 import java.util.*
 
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var myBluetoothService: BluetoothService
     private lateinit var mHandler: Handler
-
+    private val vnaService = VNAService.getInstance()
     private lateinit var bluetoothManager: BluetoothManager
 
 
@@ -52,19 +53,40 @@ class MainActivity : AppCompatActivity() {
         })
 
         myBluetoothService = BluetoothService.getInstance(bluetoothManager)
-        // myBluetoothService.addHandler(mHandler)
         myBluetoothService.configurePermission(this)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
-
-
+        val handler = Handler(mainLooper, Handler.Callback {
+            try {
+                var numBytes = it.arg1
+                Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
+                var recievedString = String((it.obj as ByteArray), 0, numBytes)
+                val rcvArray = recievedString.split("\n")
+                Log.d(TAG, rcvArray.size.toString())
+                vnaService.handleMessage(String((it.obj as ByteArray), 0, numBytes))
+                return@Callback true
+            } catch (e: Exception) {
+                Log.d(TAG, "ISSUES IN HANDLER")
+                return@Callback false
+            }
+        })
+        myBluetoothService.addHandler(handler)
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
+        myBluetoothService.getPairedDevices()?.forEach { device ->
+            val deviceName = device.name
+            Log.d(TAG, deviceName)
+            val deviceHardwareAddress = device.address // MAC address
+            if(deviceHardwareAddress == "98:D3:11:FC:2F:A6")
+            {
+                myBluetoothService.connectDevice(device, {})
+            }
+        }
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home

@@ -1,7 +1,5 @@
 package com.example.vnagrapher.services
 
-import android.bluetooth.BluetoothManager
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 class VNAService {
@@ -16,8 +14,11 @@ class VNAService {
             }
     }
 
-    val realData = MutableLiveData<List<Double>>()
-    val imaginaryData = MutableLiveData<List<Double>>()
+    val data = MutableLiveData<List<Pair<Double, Double>>>()
+    var frequencies = listOf<Double>()
+    var step = 0.0
+    var sweepStart = 0.0
+    var sweepStop = 0.0
 
     fun handleMessage(msg: String) {
         val lines = msg.split("\n")
@@ -25,8 +26,31 @@ class VNAService {
         {
             updateDataWithString(lines.subList(1, lines.size-1))
         }
+        /*
+        if(lines[0].contains("frequencies"))
+        {
+            updateFrequenciesWithString(lines.subList(1, lines.size-1))
+        }
+         */
+        if(lines[0].contains("sweep"))
+        {
+            updateSweepWithString(lines[0])
+        }
     }
 
+    fun updateSweepWithString(sweepLine: String) {
+        this.sweepStart = sweepLine.split(" ")[1].toDouble()
+        this.sweepStop = sweepLine.split(" ")[2].toDouble()
+        this.step = (sweepStop - sweepStart) / 100.0
+    }
+
+    fun updateFrequenciesWithString(frequencyLines: List<String>) {
+        var frequencyList: List<Double> = listOf()
+        for (frequencyLine in frequencyLines) {
+            frequencyList = frequencyList.plus(frequencyLine.toDouble())
+        }
+        this.frequencies = frequencyList
+    }
 
     fun updateDataWithString(dataLines: List<String>) {
         var realList: List<Double> = listOf()
@@ -36,8 +60,7 @@ class VNAService {
             realList = realList.plus(real)
             imaginaryList = imaginaryList.plus(imaginary)
         }
-        realData.value = realList
-        imaginaryData.value = imaginaryList
+        data.value = realList.zip(imaginaryList)
     }
 
 }

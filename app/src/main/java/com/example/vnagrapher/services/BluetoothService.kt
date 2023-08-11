@@ -99,8 +99,8 @@ class BluetoothService(
         }
     }
 
-    fun connectDevice(device: BluetoothDevice, callback: () -> Unit, binding: FragmentHomeBinding) {
-        this.ConnectThread(device, callback, binding).run()
+    fun connectDevice(device: BluetoothDevice, callback: () -> Unit) {
+        this.ConnectThread(device, callback).run()
     }
 
     fun getPairedDevices(): Set<BluetoothDevice>? {
@@ -187,12 +187,11 @@ class BluetoothService(
     }
 
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread(device: BluetoothDevice, callback: () -> Unit, binding: FragmentHomeBinding) : Thread() {
+    private inner class ConnectThread(device: BluetoothDevice, callback: () -> Unit) : Thread() {
         private val mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createInsecureRfcommSocketToServiceRecord(mUUID)
         }
-        private val binding = binding
         override fun run() {
             // Cancel discovery because it   otherwise slows down the connection.
             bluetoothAdapter?.cancelDiscovery()
@@ -207,6 +206,7 @@ class BluetoothService(
                     Log.d(com.example.vnagrapher.TAG, "CONNECTED Dude")
                     connectedThread = ConnectedThread(socket)
 
+                    /*
                     var frag_binding = binding as FragmentHomeBinding
                     frag_binding.pause.setOnClickListener { view ->
                         var message = "pause\r"
@@ -228,7 +228,7 @@ class BluetoothService(
                         Log.d(com.example.vnagrapher.TAG, sweepEnd)
                         connectedThread.write(("sweep $sweepStart $sweepEnd\r").toByteArray())
                     }
-
+                    */
                     connectedThread.start()
                 }
             }

@@ -48,31 +48,25 @@ class HomeFragment : Fragment() {
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
         btService = BluetoothService.getInstance(bluetoothManager)
         vnaService = VNAService.getInstance()
-        val handler = Handler(activity.mainLooper, Handler.Callback {
-            try {
-                var numBytes = it.arg1
-                Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
-                var recievedString = String((it.obj as ByteArray), 0, numBytes)
-                val rcvArray = recievedString.split("\n")
-                Log.d(TAG, rcvArray.size.toString())
-                vnaService.handleMessage(String((it.obj as ByteArray), 0, numBytes))
-                binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
-                return@Callback true
-            } catch (e: Exception) {
-                Log.d(TAG, "ISSUES IN HANDLER")
-                return@Callback false
-            }
-        })
-
-        btService.addHandler(handler)
-        btService.getPairedDevices()?.forEach { device ->
-            val deviceName = device.name
-            Log.d(TAG, deviceName)
-            val deviceHardwareAddress = device.address // MAC address
-            if(deviceHardwareAddress == "98:D3:11:FC:2F:A6")
-            {
-                btService.connectDevice(device, {}, _binding!!)
-            }
+        binding.pause.setOnClickListener { view ->
+            var message = "pause\r"
+            btService.writeMessage(message)
+        }
+        binding.resume.setOnClickListener { view ->
+            var message = "resume\r"
+            btService.writeMessage(message)
+        }
+        binding.data.setOnClickListener { view ->
+            var dataNum = binding.dataNum.text.toString()
+            var message = "data $dataNum\r"
+            btService.writeMessage(message)
+        }
+        binding.setSweep.setOnClickListener {
+            var sweepStart = binding.sweepStart.text.toString()
+            var sweepEnd = binding.sweepEnd.text.toString()
+            Log.d(com.example.vnagrapher.TAG, sweepStart)
+            Log.d(com.example.vnagrapher.TAG, sweepEnd)
+            btService.writeMessage(("sweep $sweepStart $sweepEnd\r"))
         }
         return root
     }
