@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +18,7 @@ import com.example.vnagrapher.TAG
 import com.example.vnagrapher.databinding.FragmentGraphBinding
 import com.example.vnagrapher.databinding.FragmentRealtimeGraphBinding
 import com.example.vnagrapher.services.VNAService
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -30,6 +33,12 @@ class RealtimeGraphFragment : Fragment() {
     private lateinit var btService: BluetoothService
 
     private val vnaService: VNAService = VNAService.getInstance()
+    private var trackedFrequency = 40
+    private var entries = ArrayList<Entry>()
+    private var timeSeconds = 0
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private lateinit var lineChart: LineChart
+
 
     @SuppressLint("MissingPermission")
     override fun onCreateView(
@@ -37,43 +46,73 @@ class RealtimeGraphFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val graphViewModel =
+        val realtimeGraphViewModel =
             ViewModelProvider(this)[RealtimeGraphViewModel::class.java]
 
         _binding = FragmentRealtimeGraphBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-
-        //val textView: TextView = binding.receivedText
-        graphViewModel.text.observe(viewLifecycleOwner) {
-
-        }
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
         btService = BluetoothService.getInstance(bluetoothManager)
+        lineChart = binding.data0chart
 
-        val lineChart = binding.data0chart
+
+        binding.setFrequency.setOnClickListener(View.OnClickListener {
+            this.trackedFrequency = binding.trackedFrequency.text.toString().toInt()
+            btService.writeMessage("sweep $trackedFrequency $trackedFrequency\r")
+        })
+
+        binding.start.setOnClickListener(View.OnClickListener {
+            mainHandler.post(updateDataIntermittently)
+        })
+
+        binding.pauseRealtime.setOnClickListener(View.OnClickListener {
+            mainHandler.removeCallbacks(updateDataIntermittently)
+        })
 
 
-        vnaService.data.observe(viewLifecycleOwner) {
-            val real_entries = ArrayList<Entry>()
-            val imag_entries = ArrayList<Entry>()
-            for (i in 0..100) {
-                val xVal = (vnaService.sweepStart + i * vnaService.step).toInt().toFloat()
-                real_entries.add(Entry(xVal,it[i].first.toFloat()))
-                imag_entries.add(Entry(xVal, it[i].second.toFloat()))
-            }
-            val real = LineDataSet(real_entries, "Real")
+        binding.stop.setOnClickListener(View.OnClickListener {
+            mainHandler.removeCallbacks(updateDataIntermittently)
+            this.entries.clear()
+        })
 
-            val imag = LineDataSet(imag_entries, "Imaginary")
+        return root
+    }
+
+    private val updateDataIntermittently = object : Runnable {
+        override fun run() {
+            btService.writeMessage("data 0\r")
+            mainHandler.postDelayed(this, 1500)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause: RealtimeGraphFragment")
+        vnaService.data.removeObservers(viewLifecycleOwner)
+        mainHandler.removeCallbacks(updateDataIntermittently)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        vnaService.data.observe(viewLifecycleOwner) { impedance ->
+            Log.d(TAG, "Observed data change in realtime")
+            val maxRealVal = impedance.maxOf { it.first }
+            this.entries.add(Entry(timeSeconds.toFloat(), maxRealVal.toFloat()))
+            timeSeconds += 1
+            val real = LineDataSet(this.entries, "Real")
+
             //Part4
             real.setDrawValues(false)
-            imag.setDrawValues(false)
             real.setColor(Color.rgb(255, 0, 0))
-            imag.setColor(Color.rgb(0, 255, 0))
             //vl.setDrawFilled(true)
             real.lineWidth = 3f
-            imag.lineWidth = 3f
 
             lineChart.axisRight.isEnabled = false
 
@@ -82,17 +121,11 @@ class RealtimeGraphFragment : Fragment() {
             lineChart.setPinchZoom(true)
             lineChart.onTouchListener
 
-            lineChart.data = LineData(real, imag)
+            lineChart.data = LineData(real)
             lineChart.notifyDataSetChanged()
             lineChart.invalidate()
-            Log.d(TAG, "Updated Data")
         }
-
-        return root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+
 }

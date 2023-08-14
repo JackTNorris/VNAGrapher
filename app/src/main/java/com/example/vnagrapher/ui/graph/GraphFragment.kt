@@ -16,6 +16,7 @@ import com.example.vnagrapher.TAG
 import com.example.vnagrapher.databinding.FragmentGraphBinding
 import com.example.vnagrapher.services.VNAService
 import com.example.vnagrapher.ui.realtime_graph.RealtimeGraphViewModel
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -30,6 +31,7 @@ class GraphFragment : Fragment() {
     private lateinit var btService: BluetoothService
 
     private val vnaService: VNAService = VNAService.getInstance()
+    private lateinit var lineChart: LineChart
 
     @SuppressLint("MissingPermission")
     override fun onCreateView(
@@ -52,7 +54,6 @@ class GraphFragment : Fragment() {
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
         btService = BluetoothService.getInstance(bluetoothManager)
 
-        val lineChart = binding.data0chart
 
         binding.data.setOnClickListener { view ->
             var dataNum = binding.dataNum.text.toString()
@@ -68,6 +69,22 @@ class GraphFragment : Fragment() {
             btService.writeMessage(("sweep $sweepStart $sweepEnd\r"))
         }
 
+        lineChart = binding.data0chart
+
+        return root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+    override fun onPause() {
+        super.onPause()
+        vnaService.data.removeObservers(viewLifecycleOwner)
+    }
+
+    override fun onResume() {
+        super.onResume()
         vnaService.data.observe(viewLifecycleOwner) {
             val real_entries = ArrayList<Entry>()
             val imag_entries = ArrayList<Entry>()
@@ -100,12 +117,5 @@ class GraphFragment : Fragment() {
             lineChart.invalidate()
             Log.d(TAG, "Updated Data")
         }
-
-        return root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

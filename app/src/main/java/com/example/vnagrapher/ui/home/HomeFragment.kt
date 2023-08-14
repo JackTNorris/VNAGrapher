@@ -27,6 +27,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var btService: BluetoothService
     private lateinit var vnaService: VNAService
+    private lateinit var textView: TextView
 
     @SuppressLint("MissingPermission")
     override fun onCreateView(
@@ -40,7 +41,7 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.receivedText
+        textView = binding.receivedText
         homeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
@@ -68,11 +69,30 @@ class HomeFragment : Fragment() {
             Log.d(com.example.vnagrapher.TAG, sweepEnd)
             btService.writeMessage(("sweep $sweepStart $sweepEnd\r"))
         }
+
+
+
         return root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        vnaService.data.observe(viewLifecycleOwner) {
+            var text = ""
+            for (element in it) {
+                text += "${element.first}, ${element.second}\n"
+            }
+            textView.text = text
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        vnaService.data.removeObservers(viewLifecycleOwner)
     }
 }

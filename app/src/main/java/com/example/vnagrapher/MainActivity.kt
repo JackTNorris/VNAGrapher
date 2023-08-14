@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         mHandler = Handler(this.mainLooper, Handler.Callback {
             try {
                 var numBytes = it.arg1
-                Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
+                //Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
                 // binding.receivedText.setText( String((it.obj as ByteArray), 0, numBytes))
                 return@Callback true
             } catch (e: Exception) {
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         val handler = Handler(mainLooper, Handler.Callback {
             try {
                 var numBytes = it.arg1
-                Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
+                //Log.d(TAG, String((it.obj as ByteArray), 0, numBytes))
                 var recievedString = String((it.obj as ByteArray), 0, numBytes)
                 val rcvArray = recievedString.split("\n")
                 Log.d(TAG, rcvArray.size.toString())
@@ -89,7 +89,9 @@ class MainActivity : AppCompatActivity() {
         }
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home
+                R.id.nav_home,
+                R.id.nav_graph,
+                R.id.nav_realtime_graph
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
