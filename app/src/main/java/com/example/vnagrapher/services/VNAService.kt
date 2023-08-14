@@ -1,6 +1,15 @@
 package com.example.vnagrapher.services
 
+import android.content.Context
+import android.os.Environment
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.example.vnagrapher.TAG
+import com.github.mikephil.charting.data.Entry
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+
 
 class VNAService {
 
@@ -61,6 +70,22 @@ class VNAService {
             imaginaryList = imaginaryList.plus(imaginary)
         }
         data.value = realList.zip(imaginaryList)
+    }
+
+
+    fun writeDataToFile(entries: ArrayList<Entry>, context: Context) {
+        try {
+            var data = entries.joinToString("\n") { "${it.x} ${it.y}" }
+
+            val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            val file = File(dir, "data.txt")
+
+            FileWriter(file).use { fileWriter -> fileWriter.append(data) }
+            Log.d(TAG, "WROTE DATA TO FILE")
+
+        } catch (e: IOException) {
+            Log.d("Exception", "File write failed: $e")
+        }
     }
 
 }

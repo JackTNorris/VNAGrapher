@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.vnagrapher.MainActivity
 import com.example.vnagrapher.TAG
 import com.example.vnagrapher.databinding.FragmentGraphBinding
 import com.example.vnagrapher.databinding.FragmentRealtimeGraphBinding
@@ -67,13 +68,10 @@ class RealtimeGraphFragment : Fragment() {
             mainHandler.post(updateDataIntermittently)
         })
 
-        binding.pauseRealtime.setOnClickListener(View.OnClickListener {
-            mainHandler.removeCallbacks(updateDataIntermittently)
-        })
-
 
         binding.stop.setOnClickListener(View.OnClickListener {
             mainHandler.removeCallbacks(updateDataIntermittently)
+            this.activity?.let { it1 -> vnaService.writeDataToFile(entries, it1) }
             this.entries.clear()
         })
 
