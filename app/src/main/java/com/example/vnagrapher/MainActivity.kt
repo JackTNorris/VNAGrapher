@@ -91,7 +91,8 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.nav_home,
                 R.id.nav_graph,
-                R.id.nav_realtime_graph
+                R.id.nav_realtime_graph,
+                R.id.nav_alert_threshold
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

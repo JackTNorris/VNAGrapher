@@ -16,5 +16,10 @@
             android:id="@+id/nav_realtime_graph"
             android:icon="@drawable/ic_menu_realtime"
             android:title="@string/menu_realtime_graph" />
+
+        <item
+            android:id="@+id/nav_alert_threshold"
+            android:icon="@drawable/ic_menu_alert_threshold"
+            android:title="@string/menu_alert_threshold" />
     </group>
 </menu>
