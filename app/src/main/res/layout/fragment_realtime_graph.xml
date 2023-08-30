@@ -5,15 +5,42 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="363dp"
-        android:layout_height="95dp"
-        android:layout_marginBottom="3dp"
+        android:layout_width="265dp"
+        android:layout_height="91dp"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" >
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/realtimeFileName"
+            android:layout_width="149dp"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:hint="File Name"
+            android:minHeight="48dp"
+            android:textColorHint="#757575" />
+
+        <CheckBox
+            android:id="@+id/realtimeSaveFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save File" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="363dp"
+        android:layout_height="95dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <Button
             android:id="@+id/start"
@@ -22,13 +49,6 @@
             android:layout_marginHorizontal="10dp"
             android:layout_weight="1"
             android:text="Start" />
-
-        <Button
-            android:id="@+id/pause_realtime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Pause" />
 
         <Button
             android:id="@+id/stop"
@@ -45,12 +65,10 @@
         android:layout_height="91dp"
         android:gravity="center|center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.644"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/data0chart"
-        app:layout_constraintVertical_bias="0.205">
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/trackedFrequency"
@@ -73,8 +91,8 @@
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/data0chart"
-        android:layout_width="324dp"
-        android:layout_height="422dp"
+        android:layout_width="318dp"
+        android:layout_height="354dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

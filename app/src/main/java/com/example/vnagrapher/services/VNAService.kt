@@ -9,6 +9,8 @@ import com.github.mikephil.charting.data.Entry
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import org.kotlinmath.*
+
 
 
 class VNAService {
@@ -66,26 +68,62 @@ class VNAService {
         var imaginaryList: List<Double> = listOf()
         for (dataLine in dataLines) {
             val (real, imaginary) = dataLine.split(" ").map { it.toDouble() }
-            realList = realList.plus(real)
-            imaginaryList = imaginaryList.plus(imaginary)
+            //converting to impedence
+            val (newReal, newImaginary) = convertToImpedence(real, imaginary)
+            realList = realList.plus(newReal)
+            imaginaryList = imaginaryList.plus(newImaginary)
         }
-        data.value = realList.zip(imaginaryList)
+        this.data.value = realList.zip(imaginaryList)
     }
 
 
-    fun writeDataToFile(entries: ArrayList<Entry>, context: Context) {
+    fun writeDataToFile(entries: ArrayList<Entry>, fileName: String) {
         try {
             var data = entries.joinToString("\n") { "${it.x} ${it.y}" }
 
             val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            val file = File(dir, "data.txt")
-
+            val file = File(dir, "${fileName}.txt")
+            data = "second, impedance\n" + data
+            data = "data:\n" + data
+            data = "frequencies: ${this.frequencies.joinToString(" ")}\n" + data
+            data = "sweep: ${this.sweepStart} ${this.sweepStop}\n" + data
+            data = "time_taken: ${System.currentTimeMillis()}\n" + data
+            data = "step: ${this.step}\n" + data
             FileWriter(file).use { fileWriter -> fileWriter.append(data) }
             Log.d(TAG, "WROTE DATA TO FILE")
 
         } catch (e: IOException) {
             Log.d("Exception", "File write failed: $e")
         }
+    }
+
+    fun writeDataToFile(real_entries: ArrayList<Entry>, imag_entries: ArrayList<Entry>, fileName: String) {
+        try {
+            var fileOutputString = "frequency, real, imaginary\n"
+            real_entries.forEachIndexed { index, entry ->
+                fileOutputString += "${entry.x.toDouble()}, ${entry.y.toDouble()}, ${imag_entries.get(index).y}\n"
+                Log.d(TAG, entry.x.toDouble().toString())
+            }
+
+            val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            val file = File(dir, "${fileName}.txt")
+            fileOutputString = "data:\n" + fileOutputString
+            fileOutputString = "frequencies: ${this.frequencies.joinToString(" ")}\n" + fileOutputString
+            fileOutputString = "sweep: ${this.sweepStart} ${this.sweepStop}\n" + fileOutputString
+            fileOutputString = "time_taken: ${System.currentTimeMillis()}\n" + fileOutputString
+            fileOutputString = "step: ${this.step}\n" + fileOutputString
+            FileWriter(file).use { fileWriter -> fileWriter.append(fileOutputString) }
+            Log.d(TAG, "WROTE DATA TO FILE")
+
+        } catch (e: IOException) {
+            Log.d("Exception", "File write failed: $e")
+        }
+    }
+
+    private fun convertToImpedence(real: Double, imaginary: Double): Array<Double> {
+        var x = real + imaginary*I
+        var Zn = 50.0 * (1 + x) / (1 - x)
+        return arrayOf(Zn.re, Zn.im)
     }
 
 }

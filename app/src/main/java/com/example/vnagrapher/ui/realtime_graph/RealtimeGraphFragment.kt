@@ -71,7 +71,10 @@ class RealtimeGraphFragment : Fragment() {
 
         binding.stop.setOnClickListener(View.OnClickListener {
             mainHandler.removeCallbacks(updateDataIntermittently)
-            this.activity?.let { it1 -> vnaService.writeDataToFile(entries, it1) }
+            if(this.binding.realtimeSaveFile.isChecked) {
+                vnaService.writeDataToFile(entries, this.binding.realtimeFileName.text.toString());
+            }
+            //vnaService.writeDataToFile(entries);
             this.entries.clear()
         })
 
@@ -95,6 +98,8 @@ class RealtimeGraphFragment : Fragment() {
         Log.d(TAG, "onPause: RealtimeGraphFragment")
         vnaService.data.removeObservers(viewLifecycleOwner)
         mainHandler.removeCallbacks(updateDataIntermittently)
+        binding.realtimeSaveFile.isChecked = false
+        binding.realtimeFileName.setText("")
     }
 
     override fun onResume() {

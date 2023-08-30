@@ -81,6 +81,8 @@ class GraphFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         vnaService.data.removeObservers(viewLifecycleOwner)
+        binding.saveFile.isChecked = false
+        binding.fileName.setText("")
     }
 
     override fun onResume() {
@@ -116,6 +118,9 @@ class GraphFragment : Fragment() {
             lineChart.notifyDataSetChanged()
             lineChart.invalidate()
             Log.d(TAG, "Updated Data")
+            if(this.binding.saveFile.isChecked) {
+                vnaService.writeDataToFile(real_entries, imag_entries, this.binding.fileName.text.toString());
+            }
         }
     }
 }
