@@ -27,6 +27,7 @@ class VNAService {
 
     val data = MutableLiveData<List<Pair<Double, Double>>>()
     var frequencies = listOf<Double>()
+    var sweep = MutableLiveData<Pair<Double, Double>>()
     var step = 0.0
     var sweepStart = 0.0
     var sweepStop = 0.0

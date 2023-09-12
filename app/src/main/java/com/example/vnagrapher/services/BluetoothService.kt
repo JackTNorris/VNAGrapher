@@ -42,6 +42,7 @@ class BluetoothService(
         //TODO: fix this to be a singleton
         fun getInstance(bluetoothManager: BluetoothManager? ) =
             instance ?: synchronized(this) {
+                Log.d("VNA_GRAPHER", "CREATING BLUETOOTH SERVICE")
                 instance ?: BluetoothService(bluetoothManager as BluetoothManager).also { instance = it }
             }
     }
@@ -187,7 +188,7 @@ class BluetoothService(
     }
 
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread(device: BluetoothDevice, callback: () -> Unit) : Thread() {
+    private inner class ConnectThread(device: BluetoothDevice, private val callback: () -> Unit) : Thread() {
         private val mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createInsecureRfcommSocketToServiceRecord(mUUID)
@@ -230,6 +231,7 @@ class BluetoothService(
                     }
                     */
                     connectedThread.start()
+                    callback()
                 }
             }
             catch(e: IOException)

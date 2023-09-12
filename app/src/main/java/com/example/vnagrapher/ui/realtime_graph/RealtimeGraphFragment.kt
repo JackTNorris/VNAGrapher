@@ -57,9 +57,12 @@ class RealtimeGraphFragment : Fragment() {
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
         btService = BluetoothService.getInstance(bluetoothManager)
         lineChart = binding.data0chart
-
+        binding.start.isEnabled = false
+        binding.stop.isEnabled = false
 
         binding.setFrequency.setOnClickListener(View.OnClickListener {
+            binding.start.isEnabled = true
+            binding.stop.isEnabled = true
             this.trackedFrequency = binding.trackedFrequency.text.toString().toInt()
             btService.writeMessage("sweep $trackedFrequency $trackedFrequency\r")
         })

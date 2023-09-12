@@ -1,50 +1,37 @@
 package com.example.vnagrapher
 
 import BluetoothService
-import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import com.example.vnagrapher.databinding.ActivityMainBinding
-import android.util.Log
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.ui.setupWithNavController
 import com.example.vnagrapher.services.VNAService
 import com.google.android.material.navigation.NavigationView
-import java.util.*
 
-
-var mUUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
-var TAG = "VNA_GRAPHER"
-class MainActivity : AppCompatActivity() {
+class VNAGrapherActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityMainBinding
     private lateinit var myBluetoothService: BluetoothService
     private val vnaService = VNAService.getInstance()
     private lateinit var bluetoothManager: BluetoothManager
 
-
-    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         bluetoothManager = getSystemService(BluetoothManager::class.java)
 
         myBluetoothService = BluetoothService.getInstance(bluetoothManager)
         myBluetoothService.configurePermission(this)
-
-
-        setContentView(R.layout.activity_main)
-
-        setSupportActionBar(binding.appBarMain.toolbar)
+        setSupportActionBar(findViewById(R.id.toolbar))
         val handler = Handler(mainLooper, Handler.Callback {
             try {
                 var numBytes = it.arg1
@@ -60,19 +47,9 @@ class MainActivity : AppCompatActivity() {
             }
         })
         myBluetoothService.addHandler(handler)
-
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        myBluetoothService.getPairedDevices()?.forEach { device ->
-            val deviceName = device.name
-            Log.d(TAG, deviceName)
-            val deviceHardwareAddress = device.address // MAC address
-            if(deviceHardwareAddress == "98:D3:11:FC:2F:A6")
-            {
-                myBluetoothService.connectDevice(device, {})
-            }
-        }
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
@@ -83,9 +60,7 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -104,9 +79,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-    val navController = findNavController(R.id.nav_host_fragment_content_main)
-    return navController.navigateUp(appBarConfiguration)
-            || super.onSupportNavigateUp()
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        return navController.navigateUp(appBarConfiguration)
+                || super.onSupportNavigateUp()
     }
-
 }

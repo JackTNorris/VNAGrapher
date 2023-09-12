@@ -37,7 +37,6 @@ class HomeFragment : Fragment() {
     ): View {
         val homeViewModel =
             ViewModelProvider(this)[HomeViewModel::class.java]
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -63,13 +62,18 @@ class HomeFragment : Fragment() {
             btService.writeMessage(message)
         }
         binding.setSweep.setOnClickListener {
+            binding.data.isEnabled = true
+            binding.pause.isEnabled = true
+            binding.resume.isEnabled = true
             var sweepStart = binding.sweepStart.text.toString()
             var sweepEnd = binding.sweepEnd.text.toString()
             Log.d(com.example.vnagrapher.TAG, sweepStart)
             Log.d(com.example.vnagrapher.TAG, sweepEnd)
             btService.writeMessage(("sweep $sweepStart $sweepEnd\r"))
         }
-
+        binding.data.isEnabled = false
+        binding.pause.isEnabled = false
+        binding.resume.isEnabled = false
 
 
         return root

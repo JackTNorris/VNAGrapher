@@ -4,6 +4,7 @@ import BluetoothService
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Bundle
@@ -60,9 +61,12 @@ class AlertThresholdFragment: Fragment() {
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
         btService = BluetoothService.getInstance(bluetoothManager)
         lineChart = binding.data0chart
-
+        binding.start.isEnabled = false
+        binding.stop.isEnabled = false
 
         binding.setFrequency.setOnClickListener(View.OnClickListener {
+            binding.start.isEnabled = true
+            binding.stop.isEnabled = true
             this.trackedFrequency = binding.trackedFrequency.text.toString().toInt()
             btService.writeMessage("sweep $trackedFrequency $trackedFrequency\r")
         })
@@ -112,6 +116,7 @@ class AlertThresholdFragment: Fragment() {
             {
                 if(!tonePlaying && maxRealVal > this.binding.alertThreshold.text.toString().toInt())
                 {
+                    binding.cL.background = ColorDrawable(0xFFFF00)
                     triggerSound()
                 }
                 else

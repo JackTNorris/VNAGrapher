@@ -17,4 +17,5 @@
     <string name="nav_header_title">VNA Grapher App</string>
 
     <string name="menu_alert_threshold">Alert Threshold</string>
+    <string name="title_activity_bluetooth_setup">BluetoothSetupActivity</string>
 </resources>
