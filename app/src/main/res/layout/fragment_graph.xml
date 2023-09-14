@@ -45,16 +45,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/dataNum"
-            android:layout_width="149dp"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:hint="Data Num"
-            android:minHeight="48dp"
-            android:textColorHint="#757575" />
-
         <Button
             android:id="@+id/data"
             android:layout_width="149dp"
@@ -80,7 +70,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:hint="Start"
+            android:hint="Start (Hz)"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
 
@@ -90,7 +80,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:hint="End"
+            android:hint="End (Hz)"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
 

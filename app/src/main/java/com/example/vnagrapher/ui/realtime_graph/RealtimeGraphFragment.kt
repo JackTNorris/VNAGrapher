@@ -62,13 +62,16 @@ class RealtimeGraphFragment : Fragment() {
 
         binding.setFrequency.setOnClickListener(View.OnClickListener {
             binding.start.isEnabled = true
-            binding.stop.isEnabled = true
+            binding.stop.isEnabled = false
             this.trackedFrequency = binding.trackedFrequency.text.toString().toInt()
             btService.writeMessage("sweep $trackedFrequency $trackedFrequency\r")
         })
 
         binding.start.setOnClickListener(View.OnClickListener {
             mainHandler.post(updateDataIntermittently)
+            binding.stop.isEnabled = true
+            binding.start.isEnabled = false
+            binding.setFrequency.isEnabled = false
         })
 
 
@@ -77,8 +80,12 @@ class RealtimeGraphFragment : Fragment() {
             if(this.binding.realtimeSaveFile.isChecked) {
                 vnaService.writeDataToFile(entries, this.binding.realtimeFileName.text.toString());
             }
+            timeSeconds = 0
             //vnaService.writeDataToFile(entries);
             this.entries.clear()
+            binding.start.isEnabled = true
+            binding.stop.isEnabled = false
+            binding.setFrequency.isEnabled = true
         })
 
         return root
@@ -103,6 +110,7 @@ class RealtimeGraphFragment : Fragment() {
         mainHandler.removeCallbacks(updateDataIntermittently)
         binding.realtimeSaveFile.isChecked = false
         binding.realtimeFileName.setText("")
+        timeSeconds = 0
     }
 
     override fun onResume() {
@@ -117,6 +125,7 @@ class RealtimeGraphFragment : Fragment() {
             //Part4
             real.setDrawValues(false)
             real.setColor(Color.rgb(255, 0, 0))
+            real.label = "Impedance"
             //vl.setDrawFilled(true)
             real.lineWidth = 3f
 

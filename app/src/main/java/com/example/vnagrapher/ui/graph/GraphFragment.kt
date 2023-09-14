@@ -56,13 +56,13 @@ class GraphFragment : Fragment() {
         binding.data.isEnabled = false
 
         binding.data.setOnClickListener { view ->
-            var dataNum = binding.dataNum.text.toString()
+            var dataNum = 0 //binding.dataNum.text.toString()
             var message = "data $dataNum\r"
             btService.writeMessage(message)
         }
 
         binding.setSweep.setOnClickListener {
-            binding.data.isEnabled = false
+            binding.data.isEnabled = true
             var sweepStart = binding.sweepStart.text.toString()
             var sweepEnd = binding.sweepEnd.text.toString()
             Log.d(com.example.vnagrapher.TAG, sweepStart)

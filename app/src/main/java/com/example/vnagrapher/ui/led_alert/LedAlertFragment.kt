@@ -1,36 +1,40 @@
-package com.example.vnagrapher.ui.alert_threshold
+package com.example.vnagrapher.ui.led_alert
 
 import BluetoothService
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.vnagrapher.R
 import com.example.vnagrapher.TAG
 import com.example.vnagrapher.databinding.FragmentAlertThresholdBinding
-import com.example.vnagrapher.databinding.FragmentGraphBinding
-import com.example.vnagrapher.databinding.FragmentRealtimeGraphBinding
+import com.example.vnagrapher.databinding.FragmentLedAlertBinding
 import com.example.vnagrapher.services.VNAService
-import com.example.vnagrapher.ui.graph.GraphViewModel
 import com.example.vnagrapher.ui.realtime_graph.RealtimeGraphViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 
-class AlertThresholdFragment: Fragment() {
-    private var _binding: FragmentAlertThresholdBinding? = null
+
+/**
+ * A simple [Fragment] subclass.
+ * Use the [LedAlertFragment.newInstance] factory method to
+ * create an instance of this fragment.
+ */
+class LedAlertFragment : Fragment() {
+    private var _binding: FragmentLedAlertBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -42,7 +46,6 @@ class AlertThresholdFragment: Fragment() {
     private var entries = ArrayList<Entry>()
     private var timeSeconds = 0
     private val mainHandler = Handler(Looper.getMainLooper())
-    private lateinit var lineChart: LineChart
     private var tonePlaying = false
     private var lineColor = Color.rgb(0, 255, 0)
 
@@ -56,41 +59,39 @@ class AlertThresholdFragment: Fragment() {
         val realtimeGraphViewModel =
             ViewModelProvider(this)[RealtimeGraphViewModel::class.java]
 
-        _binding = FragmentAlertThresholdBinding.inflate(inflater, container, false)
+        _binding = FragmentLedAlertBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
         btService = BluetoothService.getInstance(bluetoothManager)
-        lineChart = binding.data0chart
-        binding.start.isEnabled = false
-        binding.stop.isEnabled = false
-        binding.setFrequency.isEnabled = true
+        binding.ledAlertStart.isEnabled = false
+        binding.ledAlertStop.isEnabled = false
+        binding.ledSetFrequency.isEnabled = true
 
+        binding.ledSetFrequency.setOnClickListener(View.OnClickListener {
+            binding.ledAlertStart.isEnabled = true
+            binding.ledAlertStop.isEnabled = false
 
-        binding.setFrequency.setOnClickListener(View.OnClickListener {
-            binding.start.isEnabled = true
-            timeSeconds = 0
-            binding.stop.isEnabled = false
-            this.trackedFrequency = binding.trackedFrequency.text.toString().toInt()
+            this.trackedFrequency = binding.ledTrackedFrequency.text.toString().toInt()
             btService.writeMessage("sweep $trackedFrequency $trackedFrequency\r")
         })
 
-        binding.start.setOnClickListener(View.OnClickListener {
+        binding.ledAlertStart.setOnClickListener(View.OnClickListener {
+            binding.ledAlertStart.isEnabled = false
+            binding.ledAlertStop.isEnabled = true
+            binding.ledSetFrequency.isEnabled = false
             mainHandler.post(updateDataIntermittently)
-            binding.start.isEnabled = false
-            binding.stop.isEnabled = true
-            binding.setFrequency.isEnabled = false
         })
 
 
-        binding.stop.setOnClickListener(View.OnClickListener {
+        binding.ledAlertStop.setOnClickListener(View.OnClickListener {
             mainHandler.removeCallbacks(updateDataIntermittently)
+            binding.ledAlertStart.isEnabled = true
+            binding.ledAlertStop.isEnabled = false
+            binding.ledSetFrequency.isEnabled = true
             //vnaService.writeDataToFile(entries);
             this.entries.clear()
-            binding.start.isEnabled = true
-            binding.stop.isEnabled = false
-            binding.setFrequency.isEnabled = true
         })
 
         return root
@@ -110,7 +111,6 @@ class AlertThresholdFragment: Fragment() {
 
     override fun onPause() {
         super.onPause()
-        timeSeconds = 0
         Log.d(TAG, "onPause: RealtimeGraphFragment")
         vnaService.data.removeObservers(viewLifecycleOwner)
         mainHandler.removeCallbacks(updateDataIntermittently)
@@ -126,33 +126,17 @@ class AlertThresholdFragment: Fragment() {
             val real = LineDataSet(this.entries, "Real")
             synchronized(tonePlaying)
             {
-                if(!tonePlaying && this.binding.alertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.alertThreshold.text.toString().toInt())
+                if(!tonePlaying && this.binding.ledAlertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.ledAlertThreshold.text.toString().toInt())
                 {
-                    lineColor = Color.rgb(255, 0, 0)
+                    binding.led.setImageResource(R.drawable.positive_test)
                     triggerSound()
                 }
                 else
                 {
-                    lineColor = Color.rgb(0, 255, 0)
+                    binding.led.setImageResource(R.drawable.negative_test)
                     tonePlaying = false
                 }
             }
-            //Part4
-            real.setDrawValues(false)
-            real.setColor(lineColor)
-            //vl.setDrawFilled(true)
-            real.lineWidth = 3f
-
-            lineChart.axisRight.isEnabled = false
-
-            //Part8
-            lineChart.setTouchEnabled(true)
-            lineChart.setPinchZoom(true)
-            lineChart.onTouchListener
-
-            lineChart.data = LineData(real)
-            lineChart.notifyDataSetChanged()
-            lineChart.invalidate()
         }
     }
 
@@ -174,6 +158,4 @@ class AlertThresholdFragment: Fragment() {
         )
 
     }
-
-
 }

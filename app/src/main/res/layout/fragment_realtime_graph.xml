@@ -76,7 +76,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:hint="Frequency"
+            android:hint="Frequency (Hz)"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
 

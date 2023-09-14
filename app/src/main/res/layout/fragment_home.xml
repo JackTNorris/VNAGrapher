@@ -9,30 +9,31 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="411dp"
-        android:layout_height="89dp"
+        android:layout_width="339dp"
+        android:layout_height="84dp"
         android:orientation="horizontal"
         android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <Button
             android:id="@+id/pause"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="Pause"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:text="Pause" />
 
         <Button
             android:id="@+id/resume"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="Resume"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:text="Resume" />
     </LinearLayout>
 
     <ScrollView
@@ -79,7 +80,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:hint="Start"
+            android:hint="Start (Hz)"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
 
@@ -89,7 +90,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:hint="End"
+            android:hint="End (Hz)"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
 
@@ -112,16 +113,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/dataNum"
-            android:layout_width="149dp"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:hint="Data Num"
-            android:minHeight="48dp"
-            android:textColorHint="#757575" />
 
         <Button
             android:id="@+id/data"

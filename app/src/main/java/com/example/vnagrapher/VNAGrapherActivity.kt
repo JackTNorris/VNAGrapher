@@ -55,7 +55,8 @@ class VNAGrapherActivity : AppCompatActivity() {
                 R.id.nav_home,
                 R.id.nav_graph,
                 R.id.nav_realtime_graph,
-                R.id.nav_alert_threshold
+                R.id.nav_alert_threshold,
+                R.id.nav_led_alert
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

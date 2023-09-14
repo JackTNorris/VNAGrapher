@@ -28,14 +28,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VNAGrapher"
         tools:targetApi="31">
-
         <activity
             android:name=".VNAGrapherActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.VNAGrapher.NoActionBar"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="true" />
-
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".DeviceSelectionActivity.DeviceSelectionActivity"
             android:exported="true"
@@ -52,9 +50,7 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.VNAGrapher.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
-        </activity>
-
+            android:windowSoftInputMode="adjustPan"></activity>
     </application>
 
 </manifest>

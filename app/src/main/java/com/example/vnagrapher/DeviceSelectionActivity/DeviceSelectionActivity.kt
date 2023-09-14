@@ -8,6 +8,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,14 +45,24 @@ class DeviceSelectionActivity : AppCompatActivity() {
     }
 
     fun recyclerAdapterItemClicked(device:BluetoothDevice){
-        btService.connectDevice(device) {
+        btService.connectDevice(device, {
             startVNAGrapherActivity.launch(
                 Intent(
                     this,
                     VNAGrapherActivity::class.java
                 )
             )
-        }
+        }, {
+            createErrorToast()
+        })
+    }
+
+    fun createErrorToast() {
+        //create toast message
+        val text = "Error connecting to device"
+        val duration = Toast.LENGTH_SHORT
+        val toast = Toast.makeText(this, text, duration) // in Activity
+        toast.show()
     }
 
 }

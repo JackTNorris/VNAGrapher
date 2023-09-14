@@ -25,6 +25,8 @@ import java.util.*
 var mUUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
 var TAG = "VNA_GRAPHER"
 class MainActivity : AppCompatActivity() {
+
+    /*
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var myBluetoothService: BluetoothService
@@ -108,5 +110,5 @@ class MainActivity : AppCompatActivity() {
     return navController.navigateUp(appBarConfiguration)
             || super.onSupportNavigateUp()
     }
-
+*/
 }

@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.vnagrapher.databinding.ActivityMainBinding
@@ -100,8 +101,8 @@ class BluetoothService(
         }
     }
 
-    fun connectDevice(device: BluetoothDevice, callback: () -> Unit) {
-        this.ConnectThread(device, callback).run()
+    fun connectDevice(device: BluetoothDevice, success_callback: () -> Unit, error_callback: () -> Unit) {
+        this.ConnectThread(device, success_callback, error_callback).run()
     }
 
     fun getPairedDevices(): Set<BluetoothDevice>? {
@@ -188,7 +189,7 @@ class BluetoothService(
     }
 
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread(device: BluetoothDevice, private val callback: () -> Unit) : Thread() {
+    private inner class ConnectThread(device: BluetoothDevice, private val success_callback: () -> Unit, private var error_callback: () -> Unit) : Thread() {
         private val mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createInsecureRfcommSocketToServiceRecord(mUUID)
@@ -231,11 +232,14 @@ class BluetoothService(
                     }
                     */
                     connectedThread.start()
-                    callback()
+                    success_callback()
                 }
             }
             catch(e: IOException)
             {
+                error_callback()
+                //make toast message
+
                 Log.d(com.example.vnagrapher.TAG, "Error Connecting")
             }
 

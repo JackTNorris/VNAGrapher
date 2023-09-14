@@ -57,7 +57,7 @@ class HomeFragment : Fragment() {
             btService.writeMessage(message)
         }
         binding.data.setOnClickListener { view ->
-            var dataNum = binding.dataNum.text.toString()
+            var dataNum = 0 //binding.dataNum.text.toString()
             var message = "data $dataNum\r"
             btService.writeMessage(message)
         }

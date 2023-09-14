@@ -3,14 +3,18 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1405" />
         <entry key="app/src/main/res/drawable-v24/ic_menu_graph.xml" value="0.1345" />
         <entry key="app/src/main/res/drawable-v24/ic_menu_home.xml" value="0.2335" />
         <entry key="app/src/main/res/drawable-v24/ic_menu_level.xml" value="0.1345" />
         <entry key="app/src/main/res/drawable-v24/side_nav_bar.xml" value="0.2255" />
+        <entry key="app/src/main/res/drawable/ic_green_led_background.xml" value="0.1405" />
         <entry key="app/src/main/res/drawable/ic_menu_alert_threshold.xml" value="0.13" />
         <entry key="app/src/main/res/drawable/ic_menu_realtime.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_red_led_background.xml" value="0.1405" />
         <entry key="app/src/main/res/layout/activity_bluetooth_setup.xml" value="1.675331115722656" />
         <entry key="app/src/main/res/layout/activity_device_selection.xml" value="0.23674825032552083" />
+        <entry key="app/src/main/res/layout/activity_led_alert.xml" value="0.25358428955078127" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_vnagrapher.xml" value="0.24114583333333334" />
         <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.1" />
@@ -20,7 +24,8 @@
         <entry key="app/src/main/res/layout/fragment_alert_threshold.xml" value="0.24010416666666667" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/layout/fragment_graph.xml" value="0.2011444091796875" />
-        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.23086090087890626" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.219866943359375" />
+        <entry key="app/src/main/res/layout/fragment_led_alert.xml" value="0.22644927536231885" />
         <entry key="app/src/main/res/layout/fragment_realtime_graph.xml" value="0.22120519945324374" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/layout/home.xml" value="0.1" />
