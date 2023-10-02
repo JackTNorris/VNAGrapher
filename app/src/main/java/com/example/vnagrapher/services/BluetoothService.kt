@@ -111,6 +111,7 @@ class BluetoothService(
         return pairedDevices
     }
 
+
     inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
 
         private val mmInStream: InputStream = mmSocket.inputStream

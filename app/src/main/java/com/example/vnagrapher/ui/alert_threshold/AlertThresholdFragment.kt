@@ -38,7 +38,7 @@ class AlertThresholdFragment: Fragment() {
     private lateinit var btService: BluetoothService
 
     private val vnaService: VNAService = VNAService.getInstance()
-    private var trackedFrequency = 40
+    private var trackedFrequency = 14.0
     private var entries = ArrayList<Entry>()
     private var timeSeconds = 0
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -66,14 +66,13 @@ class AlertThresholdFragment: Fragment() {
         binding.start.isEnabled = false
         binding.stop.isEnabled = false
         binding.setFrequency.isEnabled = true
-
-
+        binding.trackedFrequency.setText(trackedFrequency.toString())
         binding.setFrequency.setOnClickListener(View.OnClickListener {
             binding.start.isEnabled = true
             timeSeconds = 0
             binding.stop.isEnabled = false
-            this.trackedFrequency = binding.trackedFrequency.text.toString().toInt()
-            btService.writeMessage("sweep $trackedFrequency $trackedFrequency\r")
+            this.trackedFrequency = binding.trackedFrequency.text.toString().toDouble()
+            btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
         })
 
         binding.start.setOnClickListener(View.OnClickListener {

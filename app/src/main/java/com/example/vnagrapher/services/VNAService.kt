@@ -1,5 +1,6 @@
 package com.example.vnagrapher.services
 
+import BluetoothService
 import android.content.Context
 import android.os.Environment
 import android.util.Log
@@ -12,7 +13,7 @@ import java.io.IOException
 import org.kotlinmath.*
 
 
-
+//TODO: add command for setting sweep
 class VNAService {
 
     companion object {
@@ -31,6 +32,8 @@ class VNAService {
     var step = 0.0
     var sweepStart = 0.0
     var sweepStop = 0.0
+    lateinit var bluetoothService: BluetoothService
+
 
     fun handleMessage(msg: String) {
         val lines = msg.split("\n")
@@ -48,6 +51,14 @@ class VNAService {
         {
             updateSweepWithString(lines[0])
         }
+    }
+
+    fun generateSweepMessage(startMHz: Double, endMHz: Double): String
+    {
+        val start = startMHz * 1000000
+        val end = endMHz * 1000000
+        Log.d(TAG, "generateSweepMessage: $start $end")
+        return "sweep ${start.toInt()} ${end.toInt()}\r"
     }
 
     fun updateSweepWithString(sweepLine: String) {

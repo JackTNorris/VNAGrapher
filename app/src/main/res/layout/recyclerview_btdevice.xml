@@ -8,6 +8,7 @@
     android:clickable="true"
     android:focusable="true"
     app:cardElevation="10dp"
+    android:contextClickable="true"
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout

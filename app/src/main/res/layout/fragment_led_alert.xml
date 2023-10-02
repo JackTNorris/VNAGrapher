@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.214"
-        app:srcCompat="@drawable/negative_test" />
+        app:srcCompat="@drawable/green_negative" />
 
     <LinearLayout
         android:id="@+id/linLayout5"
@@ -84,7 +84,7 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:hint="Frequency (Hz)"
+            android:hint="Frequency (MHz)"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
 

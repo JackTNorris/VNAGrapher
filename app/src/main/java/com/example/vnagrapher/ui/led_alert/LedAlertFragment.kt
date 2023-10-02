@@ -42,7 +42,7 @@ class LedAlertFragment : Fragment() {
     private lateinit var btService: BluetoothService
 
     private val vnaService: VNAService = VNAService.getInstance()
-    private var trackedFrequency = 40
+    private var trackedFrequency = 14.0
     private var entries = ArrayList<Entry>()
     private var timeSeconds = 0
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -61,6 +61,7 @@ class LedAlertFragment : Fragment() {
 
         _binding = FragmentLedAlertBinding.inflate(inflater, container, false)
         val root: View = binding.root
+        binding.ledTrackedFrequency.setText(trackedFrequency.toString())
 
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
@@ -73,8 +74,8 @@ class LedAlertFragment : Fragment() {
             binding.ledAlertStart.isEnabled = true
             binding.ledAlertStop.isEnabled = false
 
-            this.trackedFrequency = binding.ledTrackedFrequency.text.toString().toInt()
-            btService.writeMessage("sweep $trackedFrequency $trackedFrequency\r")
+            this.trackedFrequency = binding.ledTrackedFrequency.text.toString().toDouble()
+            btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
         })
 
         binding.ledAlertStart.setOnClickListener(View.OnClickListener {
@@ -90,6 +91,7 @@ class LedAlertFragment : Fragment() {
             binding.ledAlertStart.isEnabled = true
             binding.ledAlertStop.isEnabled = false
             binding.ledSetFrequency.isEnabled = true
+            binding.led.setImageResource(R.drawable.green_negative)
             //vnaService.writeDataToFile(entries);
             this.entries.clear()
         })
@@ -128,12 +130,12 @@ class LedAlertFragment : Fragment() {
             {
                 if(!tonePlaying && this.binding.ledAlertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.ledAlertThreshold.text.toString().toInt())
                 {
-                    binding.led.setImageResource(R.drawable.positive_test)
+                    binding.led.setImageResource(R.drawable.red_positive)
                     triggerSound()
                 }
                 else
                 {
-                    binding.led.setImageResource(R.drawable.negative_test)
+                    binding.led.setImageResource(R.drawable.green_negative)
                     tonePlaying = false
                 }
             }

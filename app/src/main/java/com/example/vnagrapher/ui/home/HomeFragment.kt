@@ -65,11 +65,9 @@ class HomeFragment : Fragment() {
             binding.data.isEnabled = true
             binding.pause.isEnabled = true
             binding.resume.isEnabled = true
-            var sweepStart = binding.sweepStart.text.toString()
-            var sweepEnd = binding.sweepEnd.text.toString()
-            Log.d(com.example.vnagrapher.TAG, sweepStart)
-            Log.d(com.example.vnagrapher.TAG, sweepEnd)
-            btService.writeMessage(("sweep $sweepStart $sweepEnd\r"))
+            var sweepStart = binding.sweepStart.text.toString().toDouble()
+            var sweepEnd = binding.sweepEnd.text.toString().toDouble()
+            btService.writeMessage(vnaService.generateSweepMessage(sweepStart, sweepEnd))
         }
         binding.data.isEnabled = false
         binding.pause.isEnabled = false

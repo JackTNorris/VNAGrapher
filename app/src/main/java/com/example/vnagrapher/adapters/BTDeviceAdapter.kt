@@ -1,10 +1,13 @@
 package com.example.vnagrapher.adapters
 
+import android.R.attr.button
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
