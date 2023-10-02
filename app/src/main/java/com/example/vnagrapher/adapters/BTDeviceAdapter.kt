@@ -31,11 +31,31 @@ class BTDeviceAdapter(val itemClicked:(itemId:BluetoothDevice)->Unit)
             holder.bind(it)
         }
         holder.itemView.tag = current.address
+        /*
         holder.itemView.setOnClickListener {
             val itemId = it.tag
             Log.d("BTDeviceAdapter","Item Clicked: " + itemId)
             itemClicked(current)
         }
+        */
+        holder.itemView.setOnTouchListener(OnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                Log.d("BTDeviceAdapter","Item Down")
+                //set background to grey
+                holder.itemView.setBackgroundColor(0xFFd9d9d9.toInt())
+                holder.itemView.elevation = 5.0f
+            } else if (event.action == MotionEvent.ACTION_UP) {
+                Log.d("BTDeviceAdapter","Item Up")
+                //set background to white
+                holder.itemView.setBackgroundColor(0xFFFFFFFF.toInt())
+                holder.itemView.elevation = 10.0f
+                val itemId = v.tag
+                Log.d("BTDeviceAdapter","Item Clicked: " + itemId)
+                itemClicked(current)
+            }
+            v.performClick()
+            true
+        })
     }
 
     class BTDeviceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

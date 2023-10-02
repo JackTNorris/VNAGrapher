@@ -2,20 +2,23 @@ package com.example.vnagrapher
 
 import BluetoothService
 import android.bluetooth.BluetoothManager
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.vnagrapher.DeviceSelectionActivity.DeviceSelectionActivity
 import com.example.vnagrapher.services.VNAService
 import com.google.android.material.navigation.NavigationView
+
 
 class VNAGrapherActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -30,6 +33,7 @@ class VNAGrapherActivity : AppCompatActivity() {
         bluetoothManager = getSystemService(BluetoothManager::class.java)
 
         myBluetoothService = BluetoothService.getInstance(bluetoothManager)
+
         myBluetoothService.configurePermission(this)
         setSupportActionBar(findViewById(R.id.toolbar))
         val handler = Handler(mainLooper, Handler.Callback {
@@ -83,5 +87,17 @@ class VNAGrapherActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        myBluetoothService.terminateConnection()
+        //val intent = Intent(this, DeviceSelectionActivity::class.java) // New activity
+        //startActivity(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume: " + myBluetoothService.isBluetoothConnected())
     }
 }

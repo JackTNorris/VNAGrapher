@@ -1,25 +1,20 @@
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothSocket
+import android.bluetooth.*
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.vnagrapher.databinding.ActivityMainBinding
-import com.example.vnagrapher.databinding.FragmentHomeBinding
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.*
+
 
 private const val TAG = "MY_APP_DEBUG_TAG"
 
@@ -50,11 +45,21 @@ class BluetoothService(
 
     private var bluetoothAdapter: BluetoothAdapter = bluetoothManager.getAdapter()
     lateinit var connectedThread: BluetoothService.ConnectedThread
+    private lateinit var connectedDevice: BluetoothDevice
+
     var handlers: Array<Handler> = arrayOf<Handler>()
 
     fun addHandler(handler: Handler) {
         this.handlers += handler
     }
+
+    @SuppressLint("MissingPermission")
+    fun isBluetoothConnected(): Boolean {
+        val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        return (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled
+                && mBluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED)
+    } //BluetoothHeadset.A2DP can also be used for Stereo media devices.
+
 
     fun writeMessage(message: String) {
         connectedThread.write(message.toByteArray())
@@ -102,7 +107,11 @@ class BluetoothService(
     }
 
     fun connectDevice(device: BluetoothDevice, success_callback: () -> Unit, error_callback: () -> Unit) {
-        this.ConnectThread(device, success_callback, error_callback).run()
+        this.ConnectThread(device, success_callback, error_callback).start()
+    }
+
+    fun terminateConnection() {
+        connectedThread.cancel()
     }
 
     fun getPairedDevices(): Set<BluetoothDevice>? {
@@ -190,7 +199,7 @@ class BluetoothService(
     }
 
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread(device: BluetoothDevice, private val success_callback: () -> Unit, private var error_callback: () -> Unit) : Thread() {
+    private inner class ConnectThread(var device: BluetoothDevice, private val success_callback: () -> Unit, private var error_callback: () -> Unit) : Thread() {
         private val mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createInsecureRfcommSocketToServiceRecord(mUUID)
@@ -207,6 +216,7 @@ class BluetoothService(
                     // The connection attempt succeeded. Perform work associated with
                     // the connection in a separate thread.
                     Log.d(com.example.vnagrapher.TAG, "CONNECTED Dude")
+                    connectedDevice = device
                     connectedThread = ConnectedThread(socket)
 
                     /*

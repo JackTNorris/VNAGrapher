@@ -7,7 +7,10 @@ import android.bluetooth.BluetoothManager
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -45,7 +48,10 @@ class DeviceSelectionActivity : AppCompatActivity() {
     }
 
     fun recyclerAdapterItemClicked(device:BluetoothDevice){
+        val progressOverlay = findViewById<FrameLayout>(R.id.progress_overlay)
+        progressOverlay.visibility = FrameLayout.VISIBLE
         btService.connectDevice(device, {
+            progressOverlay.visibility = FrameLayout.INVISIBLE
             startVNAGrapherActivity.launch(
                 Intent(
                     this,
@@ -53,8 +59,13 @@ class DeviceSelectionActivity : AppCompatActivity() {
                 )
             )
         }, {
-            createErrorToast()
+            progressOverlay.visibility = FrameLayout.INVISIBLE
+            Handler(Looper.getMainLooper()).post {
+                createErrorToast()
+            }
         })
+        Log.d("DeviceSelectionActivity", "Shit JACK")
+
     }
 
     fun createErrorToast() {
