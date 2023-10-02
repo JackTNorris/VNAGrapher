@@ -32,7 +32,7 @@ class VNAGrapherActivity : AppCompatActivity() {
 
         bluetoothManager = getSystemService(BluetoothManager::class.java)
 
-        myBluetoothService = BluetoothService.getInstance(bluetoothManager)
+        myBluetoothService = BluetoothService.getInstance(bluetoothManager, this)
 
         myBluetoothService.configurePermission(this)
         setSupportActionBar(findViewById(R.id.toolbar))
@@ -56,7 +56,6 @@ class VNAGrapherActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home,
                 R.id.nav_graph,
                 R.id.nav_realtime_graph,
                 R.id.nav_alert_threshold,
@@ -92,8 +91,9 @@ class VNAGrapherActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         myBluetoothService.terminateConnection()
-        //val intent = Intent(this, DeviceSelectionActivity::class.java) // New activity
-        //startActivity(intent)
+        val intent = Intent(this, DeviceSelectionActivity::class.java) // New activity
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
     override fun onResume() {

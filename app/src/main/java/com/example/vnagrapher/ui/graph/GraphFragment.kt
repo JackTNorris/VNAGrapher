@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
@@ -62,10 +63,15 @@ class GraphFragment : Fragment() {
         }
 
         binding.setSweep.setOnClickListener {
-            binding.data.isEnabled = true
-            var sweepStart = binding.sweepStart.text.toString().toDouble()
-            var sweepEnd = binding.sweepEnd.text.toString().toDouble()
-            btService.writeMessage(vnaService.generateSweepMessage(sweepStart, sweepEnd))
+            try {
+                binding.data.isEnabled = true
+                var sweepStart = binding.sweepStart.text.toString().toDouble()
+                var sweepEnd = binding.sweepEnd.text.toString().toDouble()
+                btService.writeMessage(vnaService.generateSweepMessage(sweepStart, sweepEnd))
+            }
+            catch(error: Error) {
+                Toast.makeText(context, "Error setting frequency: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         lineChart = binding.data0chart

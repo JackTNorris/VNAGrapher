@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.vnagrapher.R
@@ -71,11 +72,16 @@ class LedAlertFragment : Fragment() {
         binding.ledSetFrequency.isEnabled = true
 
         binding.ledSetFrequency.setOnClickListener(View.OnClickListener {
-            binding.ledAlertStart.isEnabled = true
-            binding.ledAlertStop.isEnabled = false
+            try {
+                binding.ledAlertStart.isEnabled = true
+                binding.ledAlertStop.isEnabled = false
 
-            this.trackedFrequency = binding.ledTrackedFrequency.text.toString().toDouble()
-            btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
+                this.trackedFrequency = binding.ledTrackedFrequency.text.toString().toDouble()
+                btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
+            }
+            catch(error: Error) {
+                Toast.makeText(context, "Error setting frequency: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
         })
 
         binding.ledAlertStart.setOnClickListener(View.OnClickListener {

@@ -2,14 +2,19 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.*
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
+import com.example.vnagrapher.DeviceSelectionActivity.DeviceSelectionActivity
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -29,6 +34,7 @@ private var new_command_crlf: String = "ch>"
 class BluetoothService(
     // handler that gets info from Bluetooth service
     private val bluetoothManager: BluetoothManager,
+    private var context: Context? = null
 ) {
 
     companion object {
@@ -36,10 +42,10 @@ class BluetoothService(
         private var instance: BluetoothService? = null
 
         //TODO: fix this to be a singleton
-        fun getInstance(bluetoothManager: BluetoothManager? ) =
+        fun getInstance(bluetoothManager: BluetoothManager?, context: Context? = null) =
             instance ?: synchronized(this) {
                 Log.d("VNA_GRAPHER", "CREATING BLUETOOTH SERVICE")
-                instance ?: BluetoothService(bluetoothManager as BluetoothManager).also { instance = it }
+                instance ?: BluetoothService(bluetoothManager as BluetoothManager, context).also { instance = it }
             }
     }
 
@@ -137,6 +143,9 @@ class BluetoothService(
                     mmBuffer.fill(0)
                     mmInStream.read(mmBuffer)
                 } catch (e: IOException) {
+                    val intent = Intent(context, DeviceSelectionActivity::class.java) // New activity
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    context?.startActivity(intent)
                     Log.d(TAG, "Input stream was disconnected", e)
                     break
                 }

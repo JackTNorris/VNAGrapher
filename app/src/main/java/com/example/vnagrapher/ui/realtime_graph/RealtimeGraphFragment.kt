@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
@@ -63,10 +64,15 @@ class RealtimeGraphFragment : Fragment() {
         binding.stop.isEnabled = false
         binding.trackedFrequency.setText(trackedFrequency.toString())
         binding.setFrequency.setOnClickListener(View.OnClickListener {
-            binding.start.isEnabled = true
-            binding.stop.isEnabled = false
-            this.trackedFrequency = binding.trackedFrequency.text.toString().toDouble()
-            btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
+            try {
+                binding.start.isEnabled = true
+                binding.stop.isEnabled = false
+                this.trackedFrequency = binding.trackedFrequency.text.toString().toDouble()
+                btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
+            }
+            catch(error: Error) {
+                Toast.makeText(context, "Error setting frequency: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
         })
 
         binding.start.setOnClickListener(View.OnClickListener {
