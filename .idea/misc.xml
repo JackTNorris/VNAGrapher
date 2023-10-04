@@ -25,7 +25,7 @@
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/layout/fragment_graph.xml" value="0.2011444091796875" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.219866943359375" />
-        <entry key="app/src/main/res/layout/fragment_led_alert.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_led_alert.xml" value="0.3156158447265625" />
         <entry key="app/src/main/res/layout/fragment_realtime_graph.xml" value="0.22120519945324374" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/layout/home.xml" value="0.1" />

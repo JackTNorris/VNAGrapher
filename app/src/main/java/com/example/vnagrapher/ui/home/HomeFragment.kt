@@ -46,7 +46,7 @@ class HomeFragment : Fragment() {
         }
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
-        btService = BluetoothService.getInstance(bluetoothManager)
+        btService = BluetoothService.getInstance(bluetoothManager, activity)
         vnaService = VNAService.getInstance()
         binding.pause.setOnClickListener { view ->
             var message = "pause\r"

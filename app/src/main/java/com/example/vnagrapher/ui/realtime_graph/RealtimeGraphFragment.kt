@@ -3,6 +3,7 @@ package com.example.vnagrapher.ui.realtime_graph
 import BluetoothService
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -24,6 +25,7 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import java.lang.Exception
 
 //TODO move logic to viewmodel
 //TODO put hertz input into own component
@@ -58,7 +60,7 @@ class RealtimeGraphFragment : Fragment() {
 
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
-        btService = BluetoothService.getInstance(bluetoothManager)
+        btService = BluetoothService.getInstance(bluetoothManager, activity)
         lineChart = binding.data0chart
         binding.start.isEnabled = false
         binding.stop.isEnabled = false
@@ -70,7 +72,7 @@ class RealtimeGraphFragment : Fragment() {
                 this.trackedFrequency = binding.trackedFrequency.text.toString().toDouble()
                 btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
             }
-            catch(error: Error) {
+            catch(error: Exception) {
                 Toast.makeText(context, "Error setting frequency: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })

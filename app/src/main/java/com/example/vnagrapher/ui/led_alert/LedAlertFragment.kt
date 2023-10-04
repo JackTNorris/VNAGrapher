@@ -27,6 +27,8 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import java.lang.Double.parseDouble
+import java.lang.Exception
 
 
 /**
@@ -66,7 +68,7 @@ class LedAlertFragment : Fragment() {
 
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
-        btService = BluetoothService.getInstance(bluetoothManager)
+        btService = BluetoothService.getInstance(bluetoothManager, activity)
         binding.ledAlertStart.isEnabled = false
         binding.ledAlertStop.isEnabled = false
         binding.ledSetFrequency.isEnabled = true
@@ -75,11 +77,12 @@ class LedAlertFragment : Fragment() {
             try {
                 binding.ledAlertStart.isEnabled = true
                 binding.ledAlertStop.isEnabled = false
-
+                Log.d(TAG, "Setting frequency")
                 this.trackedFrequency = binding.ledTrackedFrequency.text.toString().toDouble()
                 btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
             }
-            catch(error: Error) {
+            catch(error: Exception) {
+                Log.d(TAG, "Error setting frequency: ${error.message}")
                 Toast.makeText(context, "Error setting frequency: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
@@ -134,15 +137,20 @@ class LedAlertFragment : Fragment() {
             val real = LineDataSet(this.entries, "Real")
             synchronized(tonePlaying)
             {
-                if(!tonePlaying && this.binding.ledAlertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.ledAlertThreshold.text.toString().toInt())
-                {
-                    binding.led.setImageResource(R.drawable.red_positive)
-                    triggerSound()
+                try {
+                    if(!tonePlaying && this.binding.ledAlertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.ledAlertThreshold.text.toString().toInt())
+                    {
+                        binding.led.setImageResource(R.drawable.red_positive)
+                        triggerSound()
+                    }
+                    else
+                    {
+                        binding.led.setImageResource(R.drawable.green_negative)
+                        tonePlaying = false
+                    }
                 }
-                else
-                {
-                    binding.led.setImageResource(R.drawable.green_negative)
-                    tonePlaying = false
+                catch(error: Exception) {
+                    Toast.makeText(context, "Error with alert setting: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

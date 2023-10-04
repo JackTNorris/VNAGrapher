@@ -38,6 +38,14 @@
             android:minHeight="48dp"
             android:textColorHint="#757575" />
 
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ω"
+            android:textSize="16sp" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -87,6 +95,14 @@
             android:hint="Frequency (MHz)"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="MHz"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/ledSetFrequency"

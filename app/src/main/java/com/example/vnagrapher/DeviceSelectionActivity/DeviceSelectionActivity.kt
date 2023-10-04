@@ -32,7 +32,7 @@ class DeviceSelectionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        btService = BluetoothService.getInstance(getSystemService(BluetoothManager::class.java))
+        btService = BluetoothService.getInstance(getSystemService(BluetoothManager::class.java), this)
         btService.configurePermission(this)
         setContentView(R.layout.activity_device_selection)
         adapter = BTDeviceAdapter(this::recyclerAdapterItemClicked)

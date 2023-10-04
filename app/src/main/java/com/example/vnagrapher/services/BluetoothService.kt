@@ -42,7 +42,7 @@ class BluetoothService(
         private var instance: BluetoothService? = null
 
         //TODO: fix this to be a singleton
-        fun getInstance(bluetoothManager: BluetoothManager?, context: Context? = null) =
+        fun getInstance(bluetoothManager: BluetoothManager?, context: Context?) =
             instance ?: synchronized(this) {
                 Log.d("VNA_GRAPHER", "CREATING BLUETOOTH SERVICE")
                 instance ?: BluetoothService(bluetoothManager as BluetoothManager, context).also { instance = it }
@@ -142,10 +142,14 @@ class BluetoothService(
                 numBytes = try {
                     mmBuffer.fill(0)
                     mmInStream.read(mmBuffer)
-                } catch (e: IOException) {
+                } catch (e: Exception) {
+
                     val intent = Intent(context, DeviceSelectionActivity::class.java) // New activity
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                     context?.startActivity(intent)
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(context, "Disconnected from device", Toast.LENGTH_LONG).show()
+                    }
                     Log.d(TAG, "Input stream was disconnected", e)
                     break
                 }

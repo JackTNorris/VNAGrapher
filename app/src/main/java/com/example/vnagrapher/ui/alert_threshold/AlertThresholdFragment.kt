@@ -62,7 +62,7 @@ class AlertThresholdFragment: Fragment() {
 
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
-        btService = BluetoothService.getInstance(bluetoothManager)
+        btService = BluetoothService.getInstance(bluetoothManager, activity)
         lineChart = binding.data0chart
         binding.start.isEnabled = false
         binding.stop.isEnabled = false
@@ -76,7 +76,7 @@ class AlertThresholdFragment: Fragment() {
                 this.trackedFrequency = binding.trackedFrequency.text.toString().toDouble()
                 btService.writeMessage(vnaService.generateSweepMessage(trackedFrequency, trackedFrequency))
             }
-            catch (error: Error) {
+            catch (error: Exception) {
                 Toast.makeText(context, "Error setting frequency", Toast.LENGTH_SHORT).show()
             }
 
@@ -132,15 +132,20 @@ class AlertThresholdFragment: Fragment() {
             val real = LineDataSet(this.entries, "Real")
             synchronized(tonePlaying)
             {
-                if(!tonePlaying && this.binding.alertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.alertThreshold.text.toString().toInt())
-                {
-                    lineColor = Color.rgb(255, 0, 0)
-                    triggerSound()
+                try {
+                    if(!tonePlaying && this.binding.alertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.alertThreshold.text.toString().toInt())
+                    {
+                        lineColor = Color.rgb(255, 0, 0)
+                        triggerSound()
+                    }
+                    else
+                    {
+                        lineColor = Color.rgb(0, 255, 0)
+                        tonePlaying = false
+                    }
                 }
-                else
-                {
-                    lineColor = Color.rgb(0, 255, 0)
-                    tonePlaying = false
+                catch (error: Exception) {
+                    Toast.makeText(context, "Error setting frequency: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             }
             //Part4

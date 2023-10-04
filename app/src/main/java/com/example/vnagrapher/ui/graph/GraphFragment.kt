@@ -21,6 +21,7 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import java.lang.Exception
 
 class GraphFragment : Fragment() {
 
@@ -53,7 +54,7 @@ class GraphFragment : Fragment() {
         }
         val activity = activity as FragmentActivity
         var bluetoothManager = activity.getSystemService<BluetoothManager>(BluetoothManager::class.java)
-        btService = BluetoothService.getInstance(bluetoothManager)
+        btService = BluetoothService.getInstance(bluetoothManager, activity)
         binding.data.isEnabled = false
 
         binding.data.setOnClickListener { view ->
@@ -69,7 +70,7 @@ class GraphFragment : Fragment() {
                 var sweepEnd = binding.sweepEnd.text.toString().toDouble()
                 btService.writeMessage(vnaService.generateSweepMessage(sweepStart, sweepEnd))
             }
-            catch(error: Error) {
+            catch(error: Exception) {
                 Toast.makeText(context, "Error setting frequency: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         }
