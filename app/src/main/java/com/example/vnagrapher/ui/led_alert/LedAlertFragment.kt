@@ -138,7 +138,7 @@ class LedAlertFragment : Fragment() {
             synchronized(tonePlaying)
             {
                 try {
-                    if(!tonePlaying && this.binding.ledAlertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.ledAlertThreshold.text.toString().toInt())
+                    if(!tonePlaying && this.binding.ledAlertThreshold.text.toString().isNotBlank() && maxRealVal < this.binding.ledAlertThreshold.text.toString().toInt())
                     {
                         binding.led.setImageResource(R.drawable.red_positive)
                         triggerSound()

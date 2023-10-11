@@ -133,7 +133,7 @@ class AlertThresholdFragment: Fragment() {
             synchronized(tonePlaying)
             {
                 try {
-                    if(!tonePlaying && this.binding.alertThreshold.text.toString().isNotBlank() && maxRealVal > this.binding.alertThreshold.text.toString().toInt())
+                    if(!tonePlaying && this.binding.alertThreshold.text.toString().isNotBlank() && maxRealVal < this.binding.alertThreshold.text.toString().toInt())
                     {
                         lineColor = Color.rgb(255, 0, 0)
                         triggerSound()
